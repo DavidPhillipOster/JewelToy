@@ -263,6 +263,7 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="-237" y="-226"/>
         </menu>
         <customObject id="206" userLabel="GameController" customClass="GameController">
             <connections>
