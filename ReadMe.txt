@@ -23,3 +23,7 @@ Replaced .nibs by .xibs
 • The non-English localizations were broken. Fixed for French, German, Japanese.
 • Mystery: the app works correctly on my M1 Mac Mini, but none of the OpenGL sprites draw on when the same code is compiled and run on other M1 Macs. I even tried moving not the source code, but the working binary. It runs on my M1 Mini and on my High Sierra laptop, but not on the M1 Air, even in Rosetta. Why? Is it because the M1 Air has a Retina display? Turning on the Resolution - supports Hi Res Backing check box, and it made no difference.
 
+7/21/2023
+• Created git branch classic_opengl with the most recent version of the app that worked on old machines but not on M1 Air.
+• Created git branch appkit that removes OpenGL and just draws using AppKit == Cocoa
+• Set git Master to point to appkit.
