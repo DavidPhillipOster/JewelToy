@@ -85,7 +85,6 @@
 
 - (void)replaceTextureFromImage:(NSImage *)texImage cropRectangle:(NSRect)cropRect
 {
-    NSBitmapImageRep*	bitmapImageRep;
     NSRect		textureRect = NSMakeRect(0.0,0.0, size.width, size.height);
     NSImage*		image;
 
@@ -105,6 +104,7 @@
     [[NSColor clearColor] set];
     NSRectFill(textureRect);
     [texImage drawInRect:textureRect fromRect:cropRect operation:NSCompositingOperationSourceOver fraction:1.0];
+    [bitmapImageRep release];
     bitmapImageRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:textureRect];
     [image unlockFocus];
 
