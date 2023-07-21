@@ -500,10 +500,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void)drawRect:(NSRect)rect {
     int i,j;
 
-    // Open GL
-    float	size = 384.0/2.0;	// screenSize/2;
-    float	clearDepth = 1.0;
-
     // try to fix image loading problem
     if (!legendImage)
         [self graphicSetUp];
