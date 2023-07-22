@@ -499,7 +499,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();	// reset matrix
 
-        glFrustum(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);	// set projection matrix
+        glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);	// set projection matrix
         glMatrixMode(GL_MODELVIEW);
 
         //glEnable(GL_DEPTH_TEST);		// depth buffer
