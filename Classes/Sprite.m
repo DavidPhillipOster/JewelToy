@@ -8,8 +8,7 @@
 
 
 @implementation Sprite {
-    NSBitmapImageRep*	bitmapImageRep;
-    NSSize	size;
+  NSImage*	_image;
 }
 
 
@@ -22,16 +21,18 @@
 - (id) initWithImage:(NSImage *)textureImage cropRectangle:(NSRect)cropRect size:(NSSize) spriteSize
 {
     self = [super init];
-    [self makeTextureFromImage:textureImage cropRectangle:cropRect size:spriteSize];
+    if (self) {
+      _image = [textureImage copy];
+    }
     return self;
 
 }
 
 - (void) dealloc
 {
-  if (bitmapImageRep) {
-    [bitmapImageRep release];
-    bitmapImageRep = nil;
+  if (_image) {
+    [_image release];
+    _image = nil;
   }
   [super dealloc];
 }
@@ -47,46 +48,15 @@
         a = 0.0;	// clamp the alpha value
     if (a > 1.0)
         a = 1.0;	// clamp the alpha value
-    [bitmapImageRep drawInRect:NSMakeRect(x, y, size.width, size.height)
-                      fromRect:NSMakeRect(0, 0, size.width, size.height)
-                     operation:NSCompositingOperationSourceOver
-                      fraction:a
-                respectFlipped:NO
-                         hints:nil];
-}
-
-- (void)makeTextureFromImage:(NSImage *)texImage cropRectangle:(NSRect)cropRect size:(NSSize)spriteSize
-{
-    if (!texImage)
-        return;
-
-    NSImage*		image;
-    NSRect textureRect = NSMakeRect(0, 0, spriteSize.width, spriteSize.height);
-
-    size = spriteSize;
-
-
-
-    image = [[NSImage alloc] initWithSize:spriteSize];
-
-    [image lockFocus];
-    [[NSColor clearColor] set];
-    NSRectFill(textureRect);
-    [texImage drawInRect:textureRect fromRect:cropRect operation:NSCompositingOperationSourceOver fraction:1.0];
-    [bitmapImageRep release];
-    bitmapImageRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:textureRect];
-    [image unlockFocus];
-
-    [image release];
-
-    //NSLog(@"Texture has :\n%d bitsPerPixel\n%d bytesPerPlane\n%d bytesPerRow",[bitmapImageRep bitsPerPixel],[bitmapImageRep bytesPerPlane],[bitmapImageRep bytesPerRow]);
-    //NSLog(@"Texture is :\n%f x %f pixels, using %f x %f",textureRect.size.width,textureRect.size.height,textureCropRect.size.width,textureCropRect.size.height);
+  [_image drawInRect:NSMakeRect(x, y, _image.size.width, _image.size.height)
+            fromRect:NSMakeRect(0, 0, _image.size.width, _image.size.height)
+           operation:NSCompositingOperationSourceOver
+            fraction:a];
 }
 
 - (void)replaceTextureFromImage:(NSImage *)texImage cropRectangle:(NSRect)cropRect
 {
-    NSRect		textureRect = NSMakeRect(0.0,0.0, size.width, size.height);
-    NSImage*		image;
+    NSRect		textureRect = NSMakeRect(0.0,0.0, _image.size.width, _image.size.height);
 
     if (!texImage)
         return;
@@ -97,40 +67,17 @@
         NSLog(@"cropRect %f x %f textureSize %f x %f",textureRect.size.width, textureRect.size.height, cropRect.size.width, cropRect.size.height);
         return;
     }
-
-    image = [[NSImage alloc] initWithSize:textureRect.size];
-
-    [image lockFocus];
-    [[NSColor clearColor] set];
-    NSRectFill(textureRect);
-    [texImage drawInRect:textureRect fromRect:cropRect operation:NSCompositingOperationSourceOver fraction:1.0];
-    [bitmapImageRep release];
-    bitmapImageRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:textureRect];
-    [image unlockFocus];
-
-    [image release];
+    [_image release];
+    _image = [texImage copy];
 }
 
 - (void)substituteTextureFromImage:(NSImage *)texImage
 {
-    NSRect		cropRect = NSMakeRect(0.0,0.0,[texImage size].width,[texImage size].height);
-    NSRect		textureRect = NSMakeRect(0.0,0.0,size.width, size.height);
-    NSImage*		image;
-
     if (!texImage)
         return;
 
-    image = [[NSImage alloc] initWithSize:size];
-
-    [image lockFocus];
-    [[NSColor clearColor] set];
-    NSRectFill(textureRect);
-    [texImage drawInRect:textureRect fromRect:cropRect operation:NSCompositingOperationSourceOver fraction:1.0];
-    [bitmapImageRep release];
-    bitmapImageRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:textureRect];
-    [image unlockFocus];
-
-    [image release];
+    [_image release];
+    _image = [texImage copy];
 }
 
 @end

@@ -16,8 +16,6 @@
 - (void)blitToX:(float)x Y:(float)y Z:(float)z;
 - (void)blitToX:(float)x Y:(float)y Z:(float)z Alpha:(float)a;
 
-- (void)makeTextureFromImage:(NSImage *)texImage cropRectangle:(NSRect)cropRect size:(NSSize)spriteSize;
-
 - (void)replaceTextureFromImage:(NSImage *)texImage cropRectangle:(NSRect)cropRect;
 - (void)substituteTextureFromImage:(NSImage *)texImage;
 
