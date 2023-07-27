@@ -37,6 +37,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #import "OpenGLSprite.h"
 
+/// Before macOS 11, fall back to the previous code.
+///
+/// @param path - a filepath string
+/// @return the UTI of the file, based on the file extension, as an NSString. nil if it can't
+static NSString *UTI(NSString *path){
+    NSURL *url = [NSURL fileURLWithPath:path];
+    id uti = nil;
+    if (@available(macOS 11, *)) {
+        [url getResourceValue:&uti forKey:NSURLContentTypeKey error:NULL];
+        return [uti description];
+    }
+    return NSHFSTypeOfFile(path);
+}
 
 @implementation GameView
 
@@ -50,6 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attrs] autorelease];
 }
   
+
 - (id)initWithFrame:(NSRect)frame {
     NSOpenGLPixelFormat *pixFmt = [[self class] defaultPixelFormat];
     self = [super initWithFrame:frame pixelFormat:pixFmt];
@@ -181,6 +195,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             picturesFolderEnum=[[NSFileManager defaultManager] enumeratorAtPath:customBackgroundFolderPath];
 
             relativeFilePath=[picturesFolderEnum nextObject];
+            NSTimeInterval startTime = [NSDate timeIntervalSinceReferenceDate];
             while (relativeFilePath)
             {
                 fullPath=[NSString stringWithFormat:@"%@/%@",customBackgroundFolderPath,relativeFilePath];
@@ -190,11 +205,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 // (which may have a hidden extension) for the menu item's title and passing
                 // the full path to the picture to store with the menu item
                 if ([imageFormats containsObject:[relativeFilePath pathExtension]] ||
-                    [imageFormats containsObject:NSHFSTypeOfFile(fullPath)])
+                    [imageFormats containsObject:UTI(fullPath)])
                 {
                     [backgroundImagePathArray addObject:fullPath];
                 }
                 relativeFilePath=[picturesFolderEnum nextObject];
+                // if we can't enumerate in five seconds, give up.
+                if (5 < [NSDate timeIntervalSinceReferenceDate] - startTime) {
+                  break;
+                }
             }
 
             //NSLog(@"[backgroundImagePathArray count]= %d",[backgroundImagePathArray count]);
