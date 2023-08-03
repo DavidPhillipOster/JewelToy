@@ -22,32 +22,20 @@
 
 #import "ScoreBubble.h"
 
-// Open GL
-//
 #import "Sprite.h"
-//
-#import "ImageUtils.h"
 
 NSMutableDictionary *stringAttributes;
 
 @implementation ScoreBubble {
-    int value;
-    NSPoint screenLocation;
-    int animationCount;
-    NSImage *image;
-
-    // Open GL
-    //
     Sprite	*sprite;
-    //
 }
 
 +(ScoreBubble *)scoreWithValue:(int)val At:(NSPoint)loc Duration:(int)count
 {
-    return [[[[self class] alloc] initWithValue:val At:loc Duration:count] autorelease];
+    return [[[self class] alloc] initWithValue:val At:loc Duration:count];
 }
 
--(id)initWithValue:(int)val At:(NSPoint)loc Duration:(int)count;
+-(instancetype)initWithValue:(int)val At:(NSPoint)loc Duration:(int)count;
 {
     NSString *str= [NSString stringWithFormat:@"%d", val];
     NSSize strsize;
@@ -55,94 +43,51 @@ NSMutableDictionary *stringAttributes;
 	if (!stringAttributes) {
 	    stringAttributes= [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"ArialNarrow-Bold" size:18],
 		NSFontAttributeName, [NSColor blackColor], NSForegroundColorAttributeName, NULL];
-	    [stringAttributes retain];
 	}
 	strsize= [str sizeWithAttributes:stringAttributes];
 	strsize.width = floor(3 + strsize.width);
 	strsize.height = floor(1 + strsize.height);
-	value= val;
-	screenLocation= loc;
-	screenLocation.x -= strsize.width/2;
-	screenLocation.y -= strsize.height/2;
-	animationCount = count;
-	image= [[NSImage alloc] initWithSize:strsize];
-	[image lockFocus];
-	[stringAttributes setObject:[NSColor blackColor] forKey:NSForegroundColorAttributeName];	
+	_value= val;
+	_screenLocation= loc;
+	_screenLocation.x -= strsize.width/2;
+	_screenLocation.y -= strsize.height/2;
+	_animationCount = count;
+	_image= [[NSImage alloc] initWithSize:strsize];
+	[_image lockFocus];
+	stringAttributes[NSForegroundColorAttributeName] = [NSColor blackColor];	
 	[str drawAtPoint:NSMakePoint(2,0) withAttributes:stringAttributes];
-	[stringAttributes setObject:[NSColor yellowColor] forKey:NSForegroundColorAttributeName];	
+	stringAttributes[NSForegroundColorAttributeName] = [NSColor yellowColor];	
 	[str drawAtPoint:NSMakePoint(1,1) withAttributes:stringAttributes];
-	[image unlockFocus];
-
-        // Open GL
+	[_image unlockFocus];
+        
         //
-        sprite = [[Sprite alloc] initWithImage:image
-                                       cropRectangle:NSMakeRect(0, 0, [image size].width, [image size].height)
-                                                size:[image size]];
+        sprite = [[Sprite alloc] initWithImage:_image
+                                 cropRectangle:NSMakeRect(0, 0, _image.size.width, _image.size.height)
+                                          size:_image.size];
         //
     }
     return self;
 }
 
-- (void) dealloc
-{
-    [image release];
-    [sprite release];
-    
-    [super dealloc];
-}
-
--(void)drawImage
-{
-    float alpha= (float)animationCount/20;
-    if (alpha>1) {
-        alpha= 1;
-    }
-    [image n_compositeToPoint:screenLocation operation:NSCompositingOperationSourceOver fraction:alpha];
-}
-
 -(void)drawSprite
 {
-    float alpha= (float)animationCount/20;
+    float alpha= (float)_animationCount/20;
     if (alpha>1) {
         alpha= 1;
     }
-    [sprite blitToX:screenLocation.x
-                  Y:screenLocation.y
+    [sprite blitToX:_screenLocation.x
+                  Y:_screenLocation.y
                   Z:SCOREBUBBLE_SPRITE_Z
               Alpha:alpha];
 }
 
 -(int)animate
 {
-    if (animationCount>0) {
-	screenLocation.y++;
-	animationCount--;
+    if (_animationCount>0) {
+        _screenLocation.y++;
+        _animationCount--;
     }
-    return animationCount;
-}
-
--(int)animationCount
-{
-    return animationCount;
-}
--(void)setAnimationCount:(int)count
-{
-    animationCount= count;
-}
-
--(int)value
-{
-    return value;
-}
-
--(NSImage *)image
-{
-    return image;
-}
-
--(NSPoint)screenLocation
-{
-    return screenLocation;
+    return _animationCount;
 }
 
 @end

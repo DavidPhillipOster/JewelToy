@@ -47,14 +47,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 @class	Sprite;
 
 @interface Gem : NSObject
+@property (NS_NONATOMIC_IOSONLY, readonly) int animate;
+@property (NS_NONATOMIC_IOSONLY) int gemType;
+@property (NS_NONATOMIC_IOSONLY, copy) NSImage *image;
+@property (NS_NONATOMIC_IOSONLY, strong) Sprite *sprite;
+@property (NS_NONATOMIC_IOSONLY) int state;
+@property (NS_NONATOMIC_IOSONLY) int animationCounter;
+@property (NS_NONATOMIC_IOSONLY, readonly) NSPoint positionOnScreen;
+@property (NS_NONATOMIC_IOSONLY, readonly) NSPoint positionOnBoard;
 
-- (id)	init;
-- (void) dealloc;
+- (instancetype)	init;
 
 + (Gem *) gemWithNumber:(int) d andImage:(NSImage *)img;
 + (Gem *) gemWithNumber:(int) d andSprite:(Sprite *)aSprite;
 
-- (int) animate;
 - (void) fade;
 - (void) fall;
 - (void) shake;
@@ -63,28 +69,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void) shiver;
 //
 
-- (int) gemType;
-- (void) setGemType:(int) d;
-
-- (NSImage *) image;
-- (void) setImage:(NSImage *) value;
-- (void) drawImage;
-
-- (Sprite *) sprite;
-- (void) setSprite:(Sprite *) value;
 - (void) drawSprite;
 
-- (int) state;
-- (void) setState:(int) value;
-
-- (int) animationCounter;
-- (void) setAnimationCounter:(int) value;
-
-- (NSPoint) positionOnScreen;
 - (void) setPositionOnScreen:(int) valx :(int) valy;
 - (void) setVelocity:(int) valx :(int) valy :(int) steps;
 
-- (NSPoint) positionOnBoard;
 - (void) setPositionOnBoard:(int) valx :(int) valy;
 
 - (void) setSoundsTink:(NSSound *) tinkSound Sploink:(NSSound *) sploinkSound;

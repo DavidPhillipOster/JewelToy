@@ -24,8 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Open GL
 #import "Sprite.h"
-//
-#import "ImageUtils.h"
 
 @implementation Gem {
     int		gemType;
@@ -49,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
 
 
-- (id)	init {
+- (instancetype)	init {
     self = [super init];
     [self setSoundsTink:[NSSound soundNamed:@"tink"] Sploink:[NSSound soundNamed:@"sploink"]];
     // MW...
@@ -58,12 +56,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     return self;
 }
 
-- (void) dealloc {
-    [super dealloc];
-}
 
 + (Gem *) gemWithNumber:(int) d andImage:(NSImage *)img {
-    Gem	*result = [[[Gem alloc] init] autorelease];
+    Gem	*result = [[Gem alloc] init];
     [result setGemType:d];
     [result setImage:img];
     [result setSoundsTink:[NSSound soundNamed:@"tink"] Sploink:[NSSound soundNamed:@"sploink"]];
@@ -71,7 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
 
 + (Gem *) gemWithNumber:(int) d andSprite:(Sprite *)aSprite {
-    Gem	*result = [[[Gem alloc] init] autorelease];
+    Gem	*result = [[Gem alloc] init];
     [result setGemType:d];
     [result setSprite:aSprite];
     [result setSoundsTink:[NSSound soundNamed:@"tink"] Sploink:[NSSound soundNamed:@"sploink"]];
@@ -206,12 +201,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void) setImage:(NSImage *) value {
     image = value;
 }
-- (void) drawImage {
-    if (state == GEMSTATE_FADING)
-        [[self image] n_compositeToPoint:[self positionOnScreen] operation:NSCompositingOperationSourceOver fraction:(animationCounter / FADE_STEPS)];
-    else
-        [[self image] n_compositeToPoint:[self positionOnScreen] operation:NSCompositingOperationSourceOver];
-}
 
 - (Sprite *) sprite {
     return sprite;
@@ -270,11 +259,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
 
 - (void) setSoundsTink:(NSSound *) tinkSound Sploink:(NSSound *) sploinkSound {
-    [tink autorelease];
-    tink = [tinkSound retain];
+    tink = tinkSound;
     // tink.volume = 0.45;  // oster TODO:volume UI
-    [sploink autorelease];
-    sploink = [sploinkSound retain];
+    sploink = sploinkSound;
     // sploink.volume = 0.45;  // oster TODO:volume UI
 }
 

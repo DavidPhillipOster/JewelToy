@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     BOOL	muted;
 }
 
-- (id) init
+- (instancetype) init
 {
     int i,j;
     self = [super init];
@@ -50,68 +50,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         for (j = 0; j < 8; j++)
             board[i][j] = [[Gem alloc] init];
     // MW
-    scoreBubbles= [[NSMutableArray arrayWithCapacity:12] retain];
+    scoreBubbles= [NSMutableArray arrayWithCapacity:12];
     //
     return self;
 }
 
-- (id) initWithImagesFrom:(NSArray *) imageArray
+- (instancetype) initWithSpritesFrom:(NSArray *) spriteArray
 {
     int i,j;
     self = [super init];
-    srand([[NSDate date] timeIntervalSince1970]);	// seed by time
-    for (i = 0; i < 8; i++)
-        for (j = 0; j < 8; j++)
-        {
-            int r = [self randomGemTypeAt:i:j];
-            board[i][j] = [[Gem gemWithNumber:r andImage:[imageArray objectAtIndex:r]] retain];
-            [board[i][j] setPositionOnBoard:i:j];
-            [board[i][j] setPositionOnScreen:i*48:j*48];
-            [board[i][j] shake];
-        }
-            // MW...
-            scoreBubbles= [[NSMutableArray arrayWithCapacity:12] retain];
-    //
-    score = 0;
-    gemsFaded = 0;
-    bonusMultiplier = 1;
-    return self;
-}
-
-- (id) initWithSpritesFrom:(NSArray *) spriteArray
-{
-    int i,j;
-    self = [super init];
-    srand([[NSDate date] timeIntervalSince1970]);	// seed by time
+    srand([NSDate date].timeIntervalSince1970);	// seed by time
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
         {
             //int r = (rand() % 3)*2+((i+j)%2);
             int r = [self randomGemTypeAt:i:j];
-            board[i][j] = [[Gem gemWithNumber:r andSprite:[spriteArray objectAtIndex:r]] retain];
+            board[i][j] = [Gem gemWithNumber:r andSprite:spriteArray[r]];
             [board[i][j] setPositionOnBoard:i:j];
             [board[i][j] setPositionOnScreen:i*48:j*48];
             [board[i][j] shake];
         }
             // MW...
-            scoreBubbles= [[NSMutableArray arrayWithCapacity:12] retain];
+            scoreBubbles= [NSMutableArray arrayWithCapacity:12];
     //
     score = 0;
     gemsFaded = 0;
     bonusMultiplier = 1;
     return self;
-}
-
-- (void) dealloc
-{
-    int i,j;
-    for (i = 0; i < 8; i++)
-        for (j = 0; j < 8; j++)
-            [board[i][j] release];
-    // MW...
-    [scoreBubbles release];
-    //
-    [super dealloc];
 }
 
 - (void) setImagesFrom:(NSArray *) imageArray
@@ -119,7 +84,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     int i,j;
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
-            [board[i][j] setImage:[imageArray objectAtIndex:[board[i][j] gemType]]];
+            [board[i][j] setImage:imageArray[[board[i][j] gemType]]];
 }
 
 - (void) setSpritesFrom:(NSArray *) spriteArray
@@ -127,7 +92,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     int i,j;
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
-            [board[i][j] setSprite:[spriteArray objectAtIndex:[board[i][j] gemType]]];
+            [board[i][j] setSprite:spriteArray[[board[i][j] gemType]]];
 }
 
 - (int) randomGemTypeAt:(int)x :(int)y
@@ -413,54 +378,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                     return NO;
 }
 
-//- (void) removeFadedGemsAndReorganiseWithImagesFrom:(NSArray *) imageArray
-//{
-//    int i,j,fades, y;
-//    for (i = 0; i < 8; i++)
-//    {
-//        Gem	*column[8];
-//        fades = 0;
-//        y = 0;
-//        // let non-faded gems fall into place
-//        for (j = 0; j < 8; j++)
-//        {
-//            if ([board[i][j] state] != GEMSTATE_FADING)
-//            {
-//                column[y] = board[i][j];
-//                if ([board[i][j] positionOnScreen].y > y*48)
-//                    [board[i][j] fall];
-//                y++;
-//            }
-//            else
-//                fades++;
-//        }
-//        // transfer faded gems to top of column
-//        for (j = 0; j < 8; j++)
-//        {
-//            if ([board[i][j] state] == GEMSTATE_FADING)
-//            {
-//                // randomly reassign
-//                int r = (rand() % 7);
-//                [board[i][j]	setGemType:r];
-//                [board[i][j]	setImage:[imageArray objectAtIndex:r]];
-//
-//                column[y] = board[i][j];
-//                [board[i][j] setPositionOnScreen:i*48:(7+fades)*48];
-//                [board[i][j] fall];
-//                y++;
-//                gemsFaded++;
-//                fades--;
-//            }
-//        }
-//        // OK, shuffling all done - reorganise column
-//        for (j = 0; j < 8; j++)
-//        {
-//            board[i][j] = column[j];
-//            [board[i][j] setPositionOnBoard:i:j];
-//        }
-//    }
-//}
-
 - (void) removeFadedGemsAndReorganiseWithSpritesFrom:(NSArray *) spriteArray
 {
     int i,j,fades, y;
@@ -490,7 +407,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 // randomly reassign
                 int r = (rand() % 7);
                 [board[i][j]	setGemType:r];
-                [board[i][j]	setSprite:[spriteArray objectAtIndex:r]];
+                [board[i][j]	setSprite:spriteArray[r]];
 
                 column[y] = board[i][j];
                 [board[i][j] setPositionOnScreen:i*48:(7+fades)*48];
@@ -538,37 +455,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     [self showAllBoardMoves];	// does a delayed eruption
 }
 
-- (void) wholeNewGameWithImagesFrom:(NSArray *) imageArray
-{
-    int i,j;
-    srand([[NSDate date] timeIntervalSince1970]);	// seed by time
-    for (i = 0; i < 8; i++)
-        for (j = 0; j < 8; j++)
-        {
-            //int r = (rand() % 3)*2+((i+j)%2);
-            int r = [self randomGemTypeAt:i:j];
-            [board[i][j] setGemType:r];
-            [board[i][j] setImage:[imageArray objectAtIndex:r]];
-            [board[i][j] setPositionOnBoard:i:j];
-            [board[i][j] setPositionOnScreen:i*48:(15-j)*48];
-            [board[i][j] fall];
-        }
-            score = 0;
-    gemsFaded = 0;
-    bonusMultiplier = 1;
-}
-
 - (void) wholeNewGameWithSpritesFrom:(NSArray *) spriteArray
 {
     int i,j;
-    srand([[NSDate date] timeIntervalSince1970]);	// seed by time
+    srand([NSDate date].timeIntervalSince1970);	// seed by time
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
         {
             //int r = (rand() % 3)*2+((i+j)%2);
             int r = [self randomGemTypeAt:i:j];
             [board[i][j] setGemType:r];
-            [board[i][j] setSprite:[spriteArray objectAtIndex:r]];
+            [board[i][j] setSprite:spriteArray[r]];
             [board[i][j] setPositionOnBoard:i:j];
             [board[i][j] setPositionOnScreen:i*48:(15-j)*48];
             [board[i][j] fall];

@@ -11,14 +11,7 @@
   NSImage*	_image;
 }
 
-
-- (id) init
-{
-    self = [super init];
-    return self;
-}
-
-- (id) initWithImage:(NSImage *)textureImage cropRectangle:(NSRect)cropRect size:(NSSize) spriteSize
+- (instancetype) initWithImage:(NSImage *)textureImage cropRectangle:(NSRect)cropRect size:(NSSize) spriteSize
 {
     self = [super init];
     if (self) {
@@ -26,15 +19,6 @@
     }
     return self;
 
-}
-
-- (void) dealloc
-{
-  if (_image) {
-    [_image release];
-    _image = nil;
-  }
-  [super dealloc];
 }
 
 - (void)blitToX:(float)x Y:(float)y Z:(float)z
@@ -67,7 +51,6 @@
         NSLog(@"cropRect %f x %f textureSize %f x %f",textureRect.size.width, textureRect.size.height, cropRect.size.width, cropRect.size.height);
         return;
     }
-    [_image release];
     _image = [texImage copy];
 }
 
@@ -76,7 +59,6 @@
     if (!texImage)
         return;
 
-    [_image release];
     _image = [texImage copy];
 }
 

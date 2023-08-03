@@ -24,6 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 @class Game, GameController, Sprite;
 
 @interface GameView : NSView
+@property (NS_NONATOMIC_IOSONLY, getter=isAnimating) BOOL animating;
+@property (NS_NONATOMIC_IOSONLY, strong) Game *game;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSArray *imageArray;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSArray *spriteArray;
+@property (NS_NONATOMIC_IOSONLY, getter=isOpaque, readonly) BOOL opaque;
 
 - (void) graphicSetUp;
 - (void) loadImageArray;
@@ -32,14 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void) setMuted:(BOOL)value;
 - (void) setShowHint:(BOOL)value;
 - (void) setPaused:(BOOL)value;
-- (void) setAnimating:(BOOL)value;
-- (BOOL) isAnimating;
 - (void) animate;
 
-- (void) setGame:(Game *) agame;
-- (Game *) game;
-- (NSArray *) imageArray;
-- (NSArray *) spriteArray;
 - (void) newBackground;
 - (void) setLegend:(id)value;
 - (void) setHTMLLegend:(NSString *)value;
@@ -50,13 +49,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void) showHighScores:(NSArray *)scores andNames:(NSArray *)names;
 
 // Standard view create/free methods
-- (id)initWithFrame:(NSRect)frame;
-- (void)dealloc;
+- (instancetype)initWithFrame:(NSRect)frame;
 
 // Drawing
 - (void)drawRect:(NSRect)rect;
 - (void) showScores;
-- (BOOL)isOpaque;
 
 // Event handling
 - (void)mouseDown:(NSEvent *)event;

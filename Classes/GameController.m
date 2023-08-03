@@ -24,14 +24,59 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #import "Game.h"
 #import "GameView.h"
 #import "Gem.h"
+#import <objc/objc-runtime.h>
 
 @interface GameController(Private)
 - (void)setHighScores:(NSArray *)inarray;
 @end
 
-@implementation GameController
+@implementation GameController {
+    IBOutlet NSPanel		*aboutPanel, *prefsPanel;
+    IBOutlet GameView		*gameView;
+    IBOutlet NSButton		*prefsStandardGraphicsButton, *prefsAlternateGraphicsButton;
+    IBOutlet NSImageView	*prefsAlternateGraphicsImageView;
+    IBOutlet NSButton		*prefsCustomBackgroundCheckbox, *prefsSelectFolderButton;
+    IBOutlet NSTextField	*prefsCustomBackgroundFolderTextField;
+    IBOutlet NSImageView	*iv1, *iv2, *iv3, *iv4, *iv5, *iv6, *iv7;
+    IBOutlet NSButton		*easyGameButton, *hardGameButton, *toughGameButton;
+    IBOutlet NSMenuItem		*easyGameMenuItem, *hardGameMenuItem, *toughGameMenuItem;
+    IBOutlet NSButton		*abortGameButton, *pauseGameButton, *muteButton;
+    IBOutlet NSMenuItem		*abortGameMenuItem, *pauseGameMenuItem, *muteMenuItem;
+    IBOutlet NSMenuItem		*freePlayMenuItem, *showHighScoresMenuItem, *resetHighScoresMenuItem;
+    IBOutlet NSTextField	*scoreTextField, *bonusTextField;
+    IBOutlet MyTimerView	*timerView;
+    IBOutlet NSWindow		*gameWindow;
+    IBOutlet NSPanel		*hiScorePanel;
+    IBOutlet NSTextField	*hiScorePanelScoreTextField, *hiScorePanelNameTextField;
 
-- (id) init
+    NSLock		*animationTimerLock;
+
+    NSArray		*highScores;
+
+    int			*hintTimeSeconds;
+
+    NSString		*noMoreMovesString, *jeweltoyStartString, *gameOverString;
+    NSImage		*titleImage;
+
+    BOOL		abortGame;
+    NSTimer		*timer;
+    Game		*game;
+    int			gameLevel;
+    float		gameSpeed;
+    float		gameTime;
+    int			gemMoveSpeed, gemMoveSteps, gemMoveSize;
+
+    BOOL		useAlternateGraphics, useImportedGraphics, useCustomBackgrounds;
+    BOOL		paused, freePlay, muted, animationStatus;
+
+    NSString		*customBackgroundFolderPath;
+
+    int			gameState, gemsSoFar, chx1, chy1, chx2, chy2;
+    SEL			whatNext;
+}
+
+
+- (instancetype) init
 {
     self = [super init];
     
@@ -39,7 +84,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     //NSLog(@"highScores : %@",highScores);
 
     [self setHighScores:[[NSUserDefaults standardUserDefaults] arrayForKey:@"highScores"]];
-    if ((!highScores)||([highScores count] < 8))
+    if ((!highScores)||(highScores.count < 8))
     {
         //NSLog(@"Creating High Score Tables");
         [self setHighScores: [self makeBlankHiScoresWith:highScores]];
@@ -75,17 +120,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     return self;
 }
 
-- (void) dealloc
-{
-  [noMoreMovesString release];
-  [jeweltoyStartString release];
-  [gameOverString release];
-  [game release];
-  [animationTimerLock release];
-  [timer release];
-  [highScores release];
-  [super dealloc];
-}
 
 - (void)awakeFromNib
 {
@@ -95,23 +129,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 - (void)windowWillClose:(NSNotification *)aNotification
 {
-    id obj = [aNotification object];
+    id obj = aNotification.object;
     if (obj == aboutPanel) {
         //NSLog(@"Someone closed the 'About' window");
         aboutPanel = nil;
     }else if (obj == prefsPanel) {
         //NSLog(@"Someone closed the 'Preferences' window");
-        useAlternateGraphics = [prefsAlternateGraphicsButton state];
+        useAlternateGraphics = prefsAlternateGraphicsButton.state;
         [[NSUserDefaults standardUserDefaults]	setBool:useAlternateGraphics
                                                 forKey:@"useAlternateGraphics"];
         [[NSUserDefaults standardUserDefaults]	setBool:useImportedGraphics
                                                 forKey:@"useImportedGraphics"];
 
-        useCustomBackgrounds = [prefsCustomBackgroundCheckbox state];
+        useCustomBackgrounds = prefsCustomBackgroundCheckbox.state;
         [[NSUserDefaults standardUserDefaults]	setBool:useCustomBackgrounds
                                                 forKey:@"useCustomBackgrounds"];
         [[NSUserDefaults standardUserDefaults]	removeObjectForKey:@"customBackgroundFolderPath"];
-        [[NSUserDefaults standardUserDefaults]	setObject:[prefsCustomBackgroundFolderTextField stringValue]
+        [[NSUserDefaults standardUserDefaults]	setObject:prefsCustomBackgroundFolderTextField.stringValue
                                                   forKey:@"customBackgroundFolderPath"];
         if (gameView)
         {
@@ -134,32 +168,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     //
     //	slice and dice importedImage, saving images to defaults
     //
-    NSImage *importedImage = [prefsAlternateGraphicsImageView image];
+    NSImage *importedImage = prefsAlternateGraphicsImageView.image;
     if (importedImage)
     {
         int i = 0;
-        NSRect	cropRect = NSMakeRect(0.0,0.0,[importedImage size].width/7.0,[importedImage size].height);
+        NSRect	cropRect = NSMakeRect(0.0,0.0,importedImage.size.width/7.0,importedImage.size.height);
         NSRect	gemRect = NSMakeRect(0.0,0.0,48.0,48.0);
         NSSize imageSize = NSMakeSize(48.0,48.0);
         for (i = 0; i < 7; i++)
         {
             NSImage	*gemImage = [[NSImage alloc] initWithSize:imageSize];
             NSString *key = [NSString stringWithFormat:@"tiffGemImage%d", i];
-            cropRect.origin.x = i * [importedImage size].width/7.0;
+            cropRect.origin.x = i * importedImage.size.width/7.0;
             [gemImage lockFocus];
             [[NSColor clearColor] set];
             NSRectFill(gemRect);
           [importedImage drawInRect:gemRect fromRect:cropRect operation:NSCompositingOperationSourceOver fraction:1.0];
             [gemImage unlockFocus];
-            [[NSUserDefaults standardUserDefaults]	setObject:[gemImage TIFFRepresentation]	forKey:key];
-            if (i == 0)	[iv1 setImage:gemImage];
-            if (i == 1)	[iv2 setImage:gemImage];
-            if (i == 2)	[iv3 setImage:gemImage];
-            if (i == 3)	[iv4 setImage:gemImage];
-            if (i == 4)	[iv5 setImage:gemImage];
-            if (i == 5)	[iv6 setImage:gemImage];
-            if (i == 6)	[iv7 setImage:gemImage];
-            [gemImage release];
+            [[NSUserDefaults standardUserDefaults]	setObject:gemImage.TIFFRepresentation	forKey:key];
+            if (i == 0)	iv1.image = gemImage;
+            if (i == 1)	iv2.image = gemImage;
+            if (i == 2)	iv3.image = gemImage;
+            if (i == 3)	iv4.image = gemImage;
+            if (i == 4)	iv5.image = gemImage;
+            if (i == 5)	iv6.image = gemImage;
+            if (i == 6)	iv7.image = gemImage;
         }
         useImportedGraphics = YES;
     }
@@ -172,8 +205,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
     if (sender!=prefsCustomBackgroundCheckbox)
         return;
-    [prefsSelectFolderButton setEnabled:[prefsCustomBackgroundCheckbox state]];
-    [prefsCustomBackgroundFolderTextField setEnabled:[prefsCustomBackgroundCheckbox state]];
+    prefsSelectFolderButton.enabled = prefsCustomBackgroundCheckbox.state;
+    prefsCustomBackgroundFolderTextField.enabled = prefsCustomBackgroundCheckbox.state;
     
 }
 
@@ -185,23 +218,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     [op setCanChooseDirectories:YES];
     [op setCanChooseFiles:NO];
     NSURL *url = nil;
-    NSString *urlS = [prefsCustomBackgroundFolderTextField stringValue];
+    NSString *urlS = prefsCustomBackgroundFolderTextField.stringValue;
     if (urlS) {
       url = [NSURL fileURLWithPath:urlS];
       if (url) {
-        [op setDirectoryURL:url];
+        op.directoryURL = url;
       }
     }
     [op beginSheetModalForWindow:prefsPanel completionHandler:^(NSInteger result){
       if (result) {
         NSString *urlS = nil;
-        NSURL *url = [[op URLs] firstObject];
-        urlS = [url path];
+        NSURL *url = op.URLs.firstObject;
+        urlS = url.path;
         NSString *homeUrlS = NSHomeDirectory();
         if ([urlS hasPrefix:homeUrlS]) {
-          urlS = [@"~" stringByAppendingString:[urlS substringFromIndex:[homeUrlS length]]];
+          urlS = [@"~" stringByAppendingString:[urlS substringFromIndex:homeUrlS.length]];
         }
-        [prefsCustomBackgroundFolderTextField setStringValue:urlS];
+        self->prefsCustomBackgroundFolderTextField.stringValue = urlS;
       }
     }];
     // get a sheet going to let the user pick a folder to scan for pictures
@@ -216,24 +249,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (BOOL) validateMenuItem: (NSMenuItem*) aMenuItem
 {
     if (aMenuItem == easyGameMenuItem)
-        return [easyGameButton isEnabled];
+        return easyGameButton.enabled;
     if (aMenuItem == hardGameMenuItem)
-        return [hardGameButton isEnabled];
+        return hardGameButton.enabled;
     if (aMenuItem == toughGameMenuItem)
-        return [toughGameButton isEnabled];
+        return toughGameButton.enabled;
     if (aMenuItem == freePlayMenuItem)
-        return [easyGameButton isEnabled];
+        return easyGameButton.enabled;
     if (aMenuItem == abortGameMenuItem)
-        return [abortGameButton isEnabled];
+        return abortGameButton.enabled;
     if (aMenuItem == pauseGameMenuItem)
-        return [pauseGameButton isEnabled];
+        return pauseGameButton.enabled;
     //
     // only allow viewing and reset of scores between games
     //
     if (aMenuItem == showHighScoresMenuItem)
-        return [easyGameButton isEnabled];
+        return easyGameButton.enabled;
     if (aMenuItem == resetHighScoresMenuItem)
-        return [easyGameButton isEnabled];
+        return easyGameButton.enabled;
     return YES;
 }
 
@@ -291,9 +324,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     [game wholeNewGameWithSpritesFrom:[gameView spriteArray]];
 
 //
-    [scoreTextField setStringValue:[NSString stringWithFormat:@"%d",[game score]]];
+    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
     [scoreTextField setNeedsDisplay:YES];
-    [bonusTextField setStringValue:[NSString stringWithFormat:@"x%d",[game bonusMultiplier]]];
+    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
 //
     
@@ -333,8 +366,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (IBAction)receiveHiScoreName:(id)sender
 {
     int		i;
-    int		score = [hiScorePanelScoreTextField intValue];
-    NSString 	*name = [hiScorePanelNameTextField stringValue];
+    int		score = hiScorePanelScoreTextField.intValue;
+    NSString 	*name = hiScorePanelNameTextField.stringValue;
 
     [NSApp endSheet:hiScorePanel];
     [hiScorePanel close];
@@ -342,14 +375,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     //NSLog(@"receiving HiScoreName:%@ %d",name,score);
     
     // reset arrays to gameLevel    
-    NSMutableArray *gameNames = [[[highScores objectAtIndex:gameLevel*2] mutableCopy] autorelease];
-    NSMutableArray *gameScores = [[[highScores objectAtIndex:gameLevel*2+1] mutableCopy] autorelease];
+    NSMutableArray *gameNames = [highScores[gameLevel*2] mutableCopy];
+    NSMutableArray *gameScores = [highScores[gameLevel*2+1] mutableCopy];
     
     for (i = 0; i < 10; i++)
     {
-        if (score > [[gameScores objectAtIndex:i] intValue])
+        if (score > [gameScores[i] intValue])
         {
-            [gameScores	insertObject:[NSNumber numberWithInt:score] atIndex:i];
+            [gameScores	insertObject:@(score) atIndex:i];
             [gameScores	removeObjectAtIndex:10];
             [gameNames	insertObject:name atIndex:i];
             [gameNames	removeObjectAtIndex:10];
@@ -357,9 +390,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         }
     }
 
-    NSMutableArray *newHighScores = [[highScores mutableCopy] autorelease];
-    [newHighScores replaceObjectAtIndex:gameLevel*2 withObject:gameNames];
-    [newHighScores replaceObjectAtIndex:gameLevel*2+1 withObject:gameScores];
+    NSMutableArray *newHighScores = [highScores mutableCopy];
+    newHighScores[gameLevel*2] = gameNames;
+    newHighScores[gameLevel*2+1] = gameScores;
     [self setHighScores:newHighScores];
 
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"highScores"];	// or it won't work!?!
@@ -376,11 +409,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     //NSLog(@"Pause game toggled, sender state is %d",[sender state]);
     if (sender == pauseGameButton)
-        paused = [(NSButton *)sender state];
+        paused = ((NSButton *)sender).state;
     else
         paused = !paused;
     
-    [pauseGameButton setState:paused];
+    pauseGameButton.state = paused;
     [timerView setPaused:paused];
     if (paused)
     {
@@ -388,39 +421,39 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         [gameView setHTMLLegend:[[NSBundle mainBundle]
                             localizedStringForKey:@"PausedHTML"
                             value:nil table:nil]];
-        [pauseGameMenuItem setTitle:[[NSBundle mainBundle]
+        pauseGameMenuItem.title = [[NSBundle mainBundle]
                             localizedStringForKey:@"ContinueGameMenuItemTitle"
-                            value:nil table:nil]];
+                            value:nil table:nil];
     }
     else
     {
         [gameView setPaused:NO];
         [gameView setLegend:nil];
-        [pauseGameMenuItem setTitle:[[NSBundle mainBundle]
+        pauseGameMenuItem.title = [[NSBundle mainBundle]
                             localizedStringForKey:@"PauseGameMenuItemTitle"
-                            value:nil table:nil]];
+                            value:nil table:nil];
     }
 }
 
 - (IBAction)toggleMute:(id)sender
 {
     if (sender == muteButton)
-        muted = [(NSButton *)sender state];
+        muted = ((NSButton *)sender).state;
     else
         muted = !muted;
     
-    [muteButton setState:muted];
+    muteButton.state = muted;
     [gameView setMuted:muted];
     [game setMuted:muted];
     
     if (muted)
-        [muteMenuItem setTitle:[[NSBundle mainBundle]
+        muteMenuItem.title = [[NSBundle mainBundle]
                             localizedStringForKey:@"UnMuteGameMenuItemTitle"
-                            value:nil table:nil]];
+                            value:nil table:nil];
     else
-        [muteMenuItem setTitle:[[NSBundle mainBundle]
+        muteMenuItem.title = [[NSBundle mainBundle]
                             localizedStringForKey:@"MuteGameMenuItemTitle"
-                            value:nil table:nil]];
+                            value:nil table:nil];
     
 }
 
@@ -430,7 +463,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     NSArray *top = nil;
     if (!aboutPanel)
         [NSBundle.mainBundle loadNibNamed:@"About" owner:self topLevelObjects:&top];
-    [top makeObjectsPerformSelector:@selector(retain)];
     [aboutPanel setFrameAutosaveName:@"aboutPanel"];
     [aboutPanel makeKeyAndOrderFront:self];
 }
@@ -440,14 +472,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     NSArray *top = nil;
     if (!prefsPanel)
         [NSBundle.mainBundle loadNibNamed:@"Preferences" owner:self topLevelObjects:&top];
-    [top makeObjectsPerformSelector:@selector(retain)];
-    [prefsStandardGraphicsButton setState:!useAlternateGraphics];
-    [prefsAlternateGraphicsButton setState:useAlternateGraphics];
+    prefsStandardGraphicsButton.state = !useAlternateGraphics;
+    prefsAlternateGraphicsButton.state = useAlternateGraphics;
 
-    [prefsCustomBackgroundCheckbox setState:useCustomBackgrounds];
-    [prefsCustomBackgroundFolderTextField setStringValue:customBackgroundFolderPath];
-    [prefsSelectFolderButton setEnabled:[prefsCustomBackgroundCheckbox state]];
-    [prefsCustomBackgroundFolderTextField setEnabled:[prefsCustomBackgroundCheckbox state]];
+    prefsCustomBackgroundCheckbox.state = useCustomBackgrounds;
+    prefsCustomBackgroundFolderTextField.stringValue = customBackgroundFolderPath;
+    prefsSelectFolderButton.enabled = prefsCustomBackgroundCheckbox.state;
+    prefsCustomBackgroundFolderTextField.enabled = prefsCustomBackgroundCheckbox.state;
     
     if ([[NSUserDefaults standardUserDefaults]	dataForKey:@"tiffGemImage0"])
     {    // set up images!
@@ -457,14 +488,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             NSString	*key = [NSString stringWithFormat:@"tiffGemImage%d", i];
             NSData	*tiffData = [[NSUserDefaults standardUserDefaults]	dataForKey:key];
             NSImage 	*gemImage = [[NSImage alloc] initWithData:tiffData];
-            if (i == 0)	[iv1 setImage:gemImage];
-            if (i == 1)	[iv2 setImage:gemImage];
-            if (i == 2)	[iv3 setImage:gemImage];
-            if (i == 3)	[iv4 setImage:gemImage];
-            if (i == 4)	[iv5 setImage:gemImage];
-            if (i == 5)	[iv6 setImage:gemImage];
-            if (i == 6)	[iv7 setImage:gemImage];
-            [gemImage release];
+            if (i == 0)	iv1.image = gemImage;
+            if (i == 1)	iv2.image = gemImage;
+            if (i == 2)	iv3.image = gemImage;
+            if (i == 3)	iv4.image = gemImage;
+            if (i == 4)	iv5.image = gemImage;
+            if (i == 5)	iv6.image = gemImage;
+            if (i == 6)	iv7.image = gemImage;
         }
     }
     
@@ -476,8 +506,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     // rotate which scores to show
     //
-    NSArray *gameNames = [highScores objectAtIndex:gameLevel*2];
-    NSArray *gameScores = [highScores objectAtIndex:gameLevel*2+1];
+    NSArray *gameNames = highScores[gameLevel*2];
+    NSArray *gameScores = highScores[gameLevel*2+1];
     if (gameLevel==0)
     [gameView setHTMLHiScoreLegend:[[NSBundle mainBundle]
                                             localizedStringForKey:@"EasyHighScoresHTML"
@@ -521,13 +551,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     if (oldScores)	result = [NSMutableArray arrayWithArray:oldScores];
     
     //for (i = 0; i < 3; i++)
-    while ([result count] < 8)
+    while (result.count < 8)
     {
         NSMutableArray	*scores = [NSMutableArray arrayWithCapacity:0];
         NSMutableArray	*names = [NSMutableArray arrayWithCapacity:0];
         for (j = 0; j < 10; j++)
         {
-            [scores addObject:[NSNumber numberWithInt:100]];
+            [scores addObject:@100];
             [names addObject:[[NSBundle mainBundle]
                                 localizedStringForKey:@"AnonymousName"
                                 value:nil table:nil]];
@@ -539,7 +569,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
 
 - (void)setHighScores:(NSArray *)oldScores {
-  [highScores autorelease];
   highScores = [oldScores mutableCopy];
 }
 
@@ -559,14 +588,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     int i;
     // reset arrays with gameLevel
-    NSArray *gameNames = [highScores objectAtIndex:gameLevel*2];
-    NSArray *gameScores = [highScores objectAtIndex:gameLevel*2+1];
+    NSArray *gameNames = highScores[gameLevel*2];
+    NSArray *gameScores = highScores[gameLevel*2+1];
     for (i = 0; i < 10; i++)
     {
-        if ([game score] > [[gameScores objectAtIndex:i] intValue])
+        if ([game score] > [gameScores[i] intValue])
         {
-            [hiScorePanelScoreTextField
-                setStringValue:[NSString stringWithFormat:@"%d",[game score]]];
+            hiScorePanelScoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
             [gameWindow beginSheet:hiScorePanel completionHandler:nil];
             return;
         }
@@ -606,11 +634,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     [animationTimerLock lock];
     //
     if (!timer)
-        timer = [[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL
+        timer = [NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL
                                                   target:gameView
                                                 selector:@selector(animate)
                                                 userInfo:self
-                                                 repeats:YES] retain];
+                                                 repeats:YES];
     //
     whatNext = andThenSelector;
     //
@@ -629,7 +657,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     //
     [animationTimerLock unlock];
     
-    if (whatNext)	[self performSelector:whatNext];
+    if (whatNext){
+        //	[self performSelector:whatNext];
+        ((void (*)(id, SEL))objc_msgSend)(self, whatNext);
+    }
         
     [gameView setNeedsDisplay:YES];
 }
@@ -668,7 +699,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             r = rand() % 7;
             [gem setGemType:r];
             //[gem setImage:[[gameView imageArray] objectAtIndex:r]];
-            [gem setSprite:[[gameView spriteArray] objectAtIndex:r]];
+            [gem setSprite:[gameView spriteArray][r]];
             [gem setPositionOnBoard:i:j];
             [gem setPositionOnScreen:i*48:(i+j+8)*48];
             [gem fall];
@@ -788,9 +819,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     int oldScore = [game score];
     //NSLog(@"testForThrees");
     anyThrees = ([game testForThreeAt:chx1:chy1])|([game testForThreeAt:chx2:chy2]);
-    [scoreTextField setStringValue:[NSString stringWithFormat:@"%d",[game score]]];
+    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
     [scoreTextField setNeedsDisplay:YES];
-    [bonusTextField setStringValue:[NSString stringWithFormat:@"x%d",[game bonusMultiplier]]];
+    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
     if (anyThrees)
@@ -816,9 +847,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     int oldScore = [game score];
     //NSLog(@"testForThreesAgain");
     anyThrees = [game checkBoardForThrees];
-    [scoreTextField setStringValue:[NSString stringWithFormat:@"%d",[game score]]];
+    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
     [scoreTextField setNeedsDisplay:YES];
-    [bonusTextField setStringValue:[NSString stringWithFormat:@"x%d",[game bonusMultiplier]]];
+    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
     if (anyThrees)

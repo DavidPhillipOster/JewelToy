@@ -27,24 +27,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SCOREBUBBLE_SPRITE_Z	-0.30
 //
 
-@class NSOpenGLContext;
-@class	Sprite;
-
 @interface ScoreBubble : NSObject
-+(ScoreBubble *)scoreWithValue:(int)value At:(NSPoint)loc Duration:(int)count;
+@property (NS_NONATOMIC_IOSONLY, readonly) int animate;
+@property (NS_NONATOMIC_IOSONLY) int animationCount;
+@property (NS_NONATOMIC_IOSONLY, readonly) int value;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSImage *image;
+@property (NS_NONATOMIC_IOSONLY, readonly) NSPoint screenLocation;
 
--(void)drawImage;
++ (ScoreBubble *)scoreWithValue:(int)value At:(NSPoint)loc Duration:(int)count;
+
+- (instancetype)init NS_UNAVAILABLE;
+
 -(void)drawSprite;
 
--(id)initWithValue:(int)value At:(NSPoint)loc Duration:(int)count;
--(int)animate;
-
--(int)animationCount;
--(void)setAnimationCount:(int)count;
-
--(int)value;
-
--(NSImage *)image;
-
--(NSPoint)screenLocation;
+-(instancetype)initWithValue:(int)value At:(NSPoint)loc Duration:(int)count NS_DESIGNATED_INITIALIZER;
 @end

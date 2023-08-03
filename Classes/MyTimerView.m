@@ -20,50 +20,47 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 #import "MyTimerView.h"
+#import <objc/objc-runtime.h>
 
-@implementation MyTimerView
+@implementation MyTimerView {
+    float meter;
+    float decrement;
+    id	target;
+    SEL	runOutSelector;
+    SEL runOverSelector;
+    NSTimer	*timer;
+    BOOL	isRunning;
 
-- (id)initWithFrame:(NSRect)frame {
+    NSColor	*color1;
+    NSColor	*color2;
+    NSColor	*colorOK;
+    NSColor	*backColor;
+}
+
+
+- (instancetype)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
       meter	= 0.5;
-      color1	= [[NSColor redColor] retain];
-      color2	= [[NSColor yellowColor] retain];
-      colorOK	= [[NSColor greenColor] retain];
-      backColor	= [[NSColor blackColor] retain];
+      color1	= [NSColor redColor];
+      color2	= [NSColor yellowColor];
+      colorOK	= [NSColor greenColor];
+      backColor	= [NSColor blackColor];
       isRunning	= NO;
     }
     return self;
 }
 
-// dealloc is the method called when objects are being freed. (Note that "release"
-// is called to release objects; when the number of release calls reduce the
-// total reference count on an object to zero, dealloc is called to free
-// the object.  dealloc should free any memory allocated by the subclass
-// and then call super to get the superclass to do additional cleanup.
-
-- (void)dealloc {
-    [color1 release];
-    [color2 release];
-    [colorOK release];
-    [backColor release];
-    [super dealloc];
-}
-
-// drawRect: should be overridden in subclassers of NSView to do necessary
-// drawing in order to recreate the the look of the view. It will be called
-// to draw the whole view or parts of it (pay attention the rect argument);
-
 - (void)drawRect:(NSRect)rect {
     NSRect dotRect;
 
     [backColor set];
-    NSRectFill([self bounds]);   // Equiv to [[NSBezierPath bezierPathWithRect:[self bounds]] fill]
+    NSRectFill(self.bounds);   // Equiv to [[NSBezierPath bezierPathWithRect:[self bounds]] fill]
 
     dotRect.origin.x = 4;
     dotRect.origin.y = 4;
-    dotRect.size.width  = meter * ([self bounds].size.width - 8);
-    dotRect.size.height = [self bounds].size.height - 8;
+    dotRect.size.width  = meter * (self.bounds.size.width - 8);
+    dotRect.size.height = self.bounds.size.height - 8;
     
     [colorOK set];
     //
@@ -136,14 +133,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         if (meter == 1)
         {
             isRunning = NO;
-            [target performSelector:runOverSelector];
+            // [target performSelector:runOverSelector];
+            ((void (*)(id, SEL))objc_msgSend)(target, runOverSelector);
             return;
         }
         [self decrementMeter:decrement];
         if (meter == 0 && decrement!=0)	// MW change added '&& decrement'
         {
             isRunning = NO;
-            [target performSelector:runOutSelector];
+            // [target performSelector:runOutSelector];
+            ((void (*)(id, SEL))objc_msgSend)(target, runOutSelector);
             return;
         }
     }

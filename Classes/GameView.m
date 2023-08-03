@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #import "GameController.h"
 #import "Game.h"
 #import "Gem.h"
-#import "ImageUtils.h"
+
 //
 // MW...
 //
@@ -60,7 +60,7 @@ static NSString *UTI(NSString *path){
     NSImage			*crosshairImage;
     NSImage			*movehintImage;
 
-    //OpenGLSprites!
+    //Sprites!
     Sprite		*backgroundSprite, *crosshairSprite, *movehintSprite;
     NSMutableArray		*gemSpriteArray;
 
@@ -86,13 +86,13 @@ static NSString *UTI(NSString *path){
 }
 
 
-- (id)initWithFrame:(NSRect)frame {
+- (instancetype)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     [self gameViewInitialize];
     return self;
 }
 
-- (id)initWithCoder:(NSCoder *)coder {
+- (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
     [self gameViewInitialize];
     return self;
@@ -107,28 +107,16 @@ static NSString *UTI(NSString *path){
     showHint = YES;
     ticsSinceLastMove = 0;
     
-    docTypeDictionary = [NSDictionary dictionary];
+    docTypeDictionary = @{};
 }
 
-- (void) dealloc
-{
-    if (backgroundColor)
-        [backgroundColor release];
-    if (gemImageArray)
-        [gemImageArray release];
-    if (gemSpriteArray)
-        [gemImageArray release];
-    if (backgroundImagePathArray)
-        [backgroundImagePathArray release];
-    [super dealloc];
-}
 
 - (void) graphicSetUp
 {
     int		i;
     NSData	*tiffData;
 
-    backgroundColor = [[NSColor purpleColor] retain];
+    backgroundColor = [NSColor purpleColor];
 
     [self loadImageArray];
 
@@ -146,27 +134,24 @@ static NSString *UTI(NSString *path){
     // Make the Open GL Sprites!
     //
     backgroundSprite = [[Sprite alloc] initWithImage:backgroundImage
-                                             cropRectangle:NSMakeRect(0.0, 0.0, [backgroundImage size].width, [backgroundImage size].height)
+                                             cropRectangle:NSMakeRect(0.0, 0.0, backgroundImage.size.width, backgroundImage.size.height)
                                                       size:NSMakeSize(384.0,384.0)];
 
     crosshairSprite = [[Sprite alloc] initWithImage:crosshairImage
-                                            cropRectangle:NSMakeRect(0.0, 0.0, [crosshairImage size].width, [crosshairImage size].height)
+                                            cropRectangle:NSMakeRect(0.0, 0.0, crosshairImage.size.width, crosshairImage.size.height)
                                                      size:NSMakeSize(48.0,48.0)];
     movehintSprite = [[Sprite alloc] initWithImage:movehintImage
-                                           cropRectangle:NSMakeRect(0.0, 0.0, [movehintImage size].width, [movehintImage size].height)
+                                           cropRectangle:NSMakeRect(0.0, 0.0, movehintImage.size.width, movehintImage.size.height)
                                                     size:NSMakeSize(48.0,48.0)];
-    if (gemSpriteArray)
-        [gemSpriteArray release];
-    gemSpriteArray = [[NSMutableArray arrayWithCapacity:0] retain];
+    gemSpriteArray = [NSMutableArray arrayWithCapacity:0];
     for (i = 0; i < 7; i++)
     {
-        NSImage	*image = [gemImageArray objectAtIndex:i];
+        NSImage	*image = gemImageArray[i];
         Sprite *sprite = [[Sprite alloc] initWithImage:image
-                                                     cropRectangle:NSMakeRect(0.0, 0.0, [image size].width, [image size].height)
+                                                     cropRectangle:NSMakeRect(0.0, 0.0, image.size.width, image.size.height)
                                                               size:NSMakeSize(48.0,48.0)];
         
         [gemSpriteArray addObject:sprite];
-        [sprite release];
     }
 
     if (!legendImage)
@@ -177,8 +162,8 @@ static NSString *UTI(NSString *path){
         NSRectFill(NSMakeRect(0,0,384,384));
         [legendImage unlockFocus];
         legendSprite = [[Sprite alloc] initWithImage:legendImage
-                                            cropRectangle:NSMakeRect(0.0, 0.0, [legendImage size].width, [legendImage size].height)
-                                                    size:[legendImage size]];
+                                            cropRectangle:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)
+                                                    size:legendImage.size];
         
         [self setLegend:[NSImage imageNamed:@"title"]];
     }
@@ -189,7 +174,7 @@ static NSString *UTI(NSString *path){
     //
     if ([[NSUserDefaults standardUserDefaults]	boolForKey:@"useCustomBackgrounds"])
     {
-        NSString *customBackgroundFolderPath = [[[NSUserDefaults standardUserDefaults] stringForKey:@"customBackgroundFolderPath"] stringByResolvingSymlinksInPath];
+        NSString *customBackgroundFolderPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"customBackgroundFolderPath"].stringByResolvingSymlinksInPath;
 
         //NSLog(@"customBackgroundFolderPath = ",customBackgroundFolderPath);
         
@@ -202,9 +187,7 @@ static NSString *UTI(NSString *path){
             // we can set them to be the desktop picture
             NSArray *imageFormats=[NSImage imageTypes];
 
-            if (backgroundImagePathArray)
-                [backgroundImagePathArray autorelease];
-            backgroundImagePathArray = [[NSMutableArray arrayWithCapacity:0] retain];
+            backgroundImagePathArray = [NSMutableArray arrayWithCapacity:0];
             // build the array
 
             // borrowed code here
@@ -221,7 +204,7 @@ static NSString *UTI(NSString *path){
                 // then we're good to go, and we add a new menu item, using the display name
                 // (which may have a hidden extension) for the menu item's title and passing
                 // the full path to the picture to store with the menu item
-                if ([imageFormats containsObject:[relativeFilePath pathExtension]] ||
+                if ([imageFormats containsObject:relativeFilePath.pathExtension] ||
                     [imageFormats containsObject:UTI(fullPath)])
                 {
                     [backgroundImagePathArray addObject:fullPath];
@@ -252,9 +235,7 @@ static NSString *UTI(NSString *path){
                                         boolForKey:@"useAlternateGraphics"];
     useImportedGraphics = [[NSUserDefaults standardUserDefaults]
                                         boolForKey:@"useImportedGraphics"];
-    if (gemImageArray)
-        [gemImageArray release];
-    gemImageArray = [[NSMutableArray arrayWithCapacity:0] retain];
+    gemImageArray = [NSMutableArray arrayWithCapacity:0];
     if (!useAlternateGraphics)
     {
         //NSLog(@"Loading regular graphics");
@@ -292,7 +273,6 @@ static NSString *UTI(NSString *path){
                                         dataForKey:key];
                 NSImage	*gemImage = [[NSImage alloc] initWithData:tiffData];
                 [gemImageArray addObject:gemImage];
-                [gemImage release];
             }
             
         }
@@ -346,8 +326,8 @@ static NSString *UTI(NSString *path){
         BOOL needsUpdate = FALSE;
         //
         // animate bubbles, if any
-        for (b=0; b<[[game scoreBubbles] count]; b++) {
-            ScoreBubble *sb= [[game scoreBubbles] objectAtIndex:b];
+        for (b=0; b<[game scoreBubbles].count; b++) {
+            ScoreBubble *sb= [game scoreBubbles][b];
             int more= [sb animate];
             needsUpdate = TRUE;
             if (!more) {
@@ -405,9 +385,9 @@ static NSString *UTI(NSString *path){
 
 - (void) newBackground
 {
-    if (([gameController useCustomBackgrounds])&&(backgroundImagePathArray)&&([backgroundImagePathArray count] > 0))
+    if (([gameController useCustomBackgrounds])&&(backgroundImagePathArray)&&(backgroundImagePathArray.count > 0))
     {
-        NSString *imagePath = [backgroundImagePathArray objectAtIndex:0];
+        NSString *imagePath = backgroundImagePathArray[0];
         [backgroundImagePathArray addObject:imagePath];
         [backgroundImagePathArray removeObjectAtIndex:0];
         //NSLog(@"Taking image from path: %@",imagePath);
@@ -429,7 +409,7 @@ static NSString *UTI(NSString *path){
         else
             backgroundImage = [NSImage imageNamed:@"background"];
         backgroundSprite = [[Sprite alloc] initWithImage:backgroundImage
-                                                 cropRectangle:NSMakeRect(0.0, 0.0, [backgroundImage size].width, [backgroundImage size].height)
+                                                 cropRectangle:NSMakeRect(0.0, 0.0, backgroundImage.size.width, backgroundImage.size.height)
                                                           size:NSMakeSize(384.0,384.0)];
     }    
 }
@@ -459,11 +439,12 @@ static NSString *UTI(NSString *path){
     if ([value isKindOfClass:[NSImage class]])
     {
         NSPoint legendPoint = NSMakePoint((384 - [value size].width)/2,(384 - [value size].height)/2);
-        [(NSImage *)value n_compositeToPoint:legendPoint operation:NSCompositingOperationSourceOver];
+        NSRect r = NSMakeRect(0, 0, [value size].width, [value size].height);
+        [(NSImage *)value drawAtPoint:legendPoint fromRect:r operation:NSCompositingOperationSourceOver fraction:1];
     }
     [legendImage unlockFocus];
     [legendSprite replaceTextureFromImage:legendImage
-                            cropRectangle:NSMakeRect(0.0, 0.0, [legendImage size].width, [legendImage size].height)];
+                            cropRectangle:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)];
 
     legend = legendSprite;
     ticsSinceLastMove = 0;
@@ -471,27 +452,23 @@ static NSString *UTI(NSString *path){
     animating = NO;
 
     [self setNeedsDisplay:YES];
-    
-    //
-    //
 }
 
 - (void) setHTMLLegend:(NSString *)value
 {
-    NSData		*htmlData = [NSData dataWithBytes:[value UTF8String] length:[value length]];
-    [self setLegend:[[[NSAttributedString alloc] initWithHTML:htmlData documentAttributes:NULL] autorelease]];
+    NSData		*htmlData = [NSData dataWithBytes:value.UTF8String length:value.length];
+    [self setLegend:[[NSAttributedString alloc] initWithHTML:htmlData documentAttributes:NULL]];
 }
 
 - (void) setHiScoreLegend:(NSAttributedString *)value
 {
-  [hiScoreLegend autorelease];
-  hiScoreLegend = [value retain];
+  hiScoreLegend = value;
 }
 
 - (void) setHTMLHiScoreLegend:(NSString *)value
 {
-    NSData *htmlData = [NSData dataWithBytes:[value UTF8String] length:[value length]];
-    [self setHiScoreLegend:[[[NSAttributedString alloc] initWithHTML:htmlData documentAttributes:NULL] autorelease]];
+    NSData *htmlData = [NSData dataWithBytes:value.UTF8String length:value.length];
+    [self setHiScoreLegend:[[NSAttributedString alloc] initWithHTML:htmlData documentAttributes:NULL]];
 }
 
 - (void) setLastMoveDate
@@ -508,12 +485,6 @@ static NSString *UTI(NSString *path){
     scoreScroll = 0;
     [self setNeedsDisplay:YES];
 }
-
-
-// drawRect: should be overridden in subclassers of NSView to do necessary
-// drawing in order to recreate the the look of the view. It will be called
-// to draw the whole view or parts of it (pay attention the rect argument);
-// it will also be called during printing if your app is set up to print.
 
 - (void)drawRect:(NSRect)rect {
     int i,j;
@@ -538,8 +509,8 @@ static NSString *UTI(NSString *path){
         //
         // MW - Scorebubbles
         //
-        for (i=0; i<[[game scoreBubbles] count]; i++) {
-            ScoreBubble *sb= [[game scoreBubbles] objectAtIndex:i];
+        for (i=0; i<[game scoreBubbles].count; i++) {
+            ScoreBubble *sb= [game scoreBubbles][i];
             [sb drawSprite];
         }
         //
@@ -587,7 +558,7 @@ static NSString *UTI(NSString *path){
     NSRect panelRect;
     NSMutableDictionary	*attr = [NSMutableDictionary dictionaryWithCapacity:0];
 
-    [attr setObject:[NSColor yellowColor] forKey:NSForegroundColorAttributeName];
+    attr[NSForegroundColorAttributeName] = [NSColor yellowColor];
 
     [legendImage lockFocus];
     [[NSColor clearColor] set];
@@ -604,26 +575,26 @@ static NSString *UTI(NSString *path){
     
     for (i = 0; i< 10; i++)
     {
-        NSString *s1 = [NSString stringWithFormat:@"%d",[[hiScoreNumbers objectAtIndex:i] intValue]];
-        NSString *s2 = [hiScoreNames objectAtIndex:i];
+        NSString *s1 = [NSString stringWithFormat:@"%d",[hiScoreNumbers[i] intValue]];
+        NSString *s2 = hiScoreNames[i];
         NSPoint	q1 = NSMakePoint( 192+20+1, 384 - 84 - i*30 + scoreScroll - 1); 
         NSPoint	q2 = NSMakePoint( 192-20-[s2 sizeWithAttributes:attr].width+1, 384 - 84 - i*30 + scoreScroll - 1); 
         NSPoint	p1 = NSMakePoint( 192+20, 384 - 84 - i*30 + scoreScroll); 
         NSPoint	p2 = NSMakePoint( 192-20-[s2 sizeWithAttributes:attr].width, 384 - 84 - i*30 + scoreScroll); 
 
-        [attr setObject:[NSColor blackColor] forKey:NSForegroundColorAttributeName];
+        attr[NSForegroundColorAttributeName] = [NSColor blackColor];
 
         [s1 drawAtPoint:q1 withAttributes:attr];
         [s2 drawAtPoint:q2 withAttributes:attr];
         
-        [attr setObject:[NSColor yellowColor] forKey:NSForegroundColorAttributeName];
+        attr[NSForegroundColorAttributeName] = [NSColor yellowColor];
 
         [s1 drawAtPoint:p1 withAttributes:attr];
         [s2 drawAtPoint:p2 withAttributes:attr];
     }
     [legendImage unlockFocus];
     [legendSprite replaceTextureFromImage:legendImage
-                            cropRectangle:NSMakeRect(0.0, 0.0, [legendImage size].width, [legendImage size].height)];
+                            cropRectangle:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)];
 
     legend = legendSprite;
     
@@ -655,7 +626,7 @@ static NSString *UTI(NSString *path){
 // I might have to change the shape of the mouse cursor too!
 //
 - (void)mouseDown:(NSEvent *)event {
-    NSPoint eventLocation = [event locationInWindow];
+    NSPoint eventLocation = event.locationInWindow;
     NSPoint center = [self convertPoint:eventLocation fromView:nil];
     dragStartPoint = center;
 }
@@ -665,7 +636,7 @@ static NSString *UTI(NSString *path){
 }
 
 - (void)mouseUp:(NSEvent *)event {
-    NSPoint eventLocation = [event locationInWindow];
+    NSPoint eventLocation = event.locationInWindow;
     NSPoint center = [self convertPoint:eventLocation fromView:nil];
     
     // check situation - is this a first or second mouseUp

@@ -43,53 +43,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 @class Game, GameView, MyTimerView;
 
 @interface GameController : NSObject
-{
-    IBOutlet NSPanel		*aboutPanel, *prefsPanel;
-    IBOutlet GameView		*gameView;
-    IBOutlet NSButton		*prefsStandardGraphicsButton, *prefsAlternateGraphicsButton;
-    IBOutlet NSImageView	*prefsAlternateGraphicsImageView;
-    IBOutlet NSButton		*prefsCustomBackgroundCheckbox, *prefsSelectFolderButton;
-    IBOutlet NSTextField	*prefsCustomBackgroundFolderTextField;
-    IBOutlet NSImageView	*iv1, *iv2, *iv3, *iv4, *iv5, *iv6, *iv7;
-    IBOutlet NSButton		*easyGameButton, *hardGameButton, *toughGameButton;
-    IBOutlet NSMenuItem		*easyGameMenuItem, *hardGameMenuItem, *toughGameMenuItem;
-    IBOutlet NSButton		*abortGameButton, *pauseGameButton, *muteButton;
-    IBOutlet NSMenuItem		*abortGameMenuItem, *pauseGameMenuItem, *muteMenuItem;
-    IBOutlet NSMenuItem		*freePlayMenuItem, *showHighScoresMenuItem, *resetHighScoresMenuItem;
-    IBOutlet NSTextField	*scoreTextField, *bonusTextField;
-    IBOutlet MyTimerView	*timerView;
-    IBOutlet NSWindow		*gameWindow;
-    IBOutlet NSPanel		*hiScorePanel;
-    IBOutlet NSTextField	*hiScorePanelScoreTextField, *hiScorePanelNameTextField;
-    
-    NSLock		*animationTimerLock;
-    
-    NSArray		*highScores;
+@property (NS_NONATOMIC_IOSONLY, readonly) int gameState;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL gameIsPaused;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL useCustomBackgrounds;
+@property (NS_NONATOMIC_IOSONLY, readonly) NSPoint crossHair1Position;
+@property (NS_NONATOMIC_IOSONLY, readonly) NSPoint crossHair2Position;
 
-    int			*hintTimeSeconds;
-    
-    NSString		*noMoreMovesString, *jeweltoyStartString, *gameOverString;
-    NSImage		*titleImage;
-    
-    BOOL		abortGame;
-    NSTimer		*timer;
-    Game		*game;
-    int			gameLevel;
-    float		gameSpeed;
-    float		gameTime;
-    int			gemMoveSpeed, gemMoveSteps, gemMoveSize;
-    
-    BOOL		useAlternateGraphics, useImportedGraphics, useCustomBackgrounds;
-    BOOL		paused, freePlay, muted, animationStatus;
-
-    NSString		*customBackgroundFolderPath;
-    
-    int			gameState, gemsSoFar, chx1, chy1, chx2, chy2;
-    SEL			whatNext;
-}
-
-- (id) init;
-- (void) dealloc;
+- (instancetype) init;
 
 - (void)awakeFromNib;
 
@@ -138,9 +98,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void)unSwap;    
     // else swap them back
 
-- (int) gameState;
-- (BOOL) gameIsPaused;
-- (BOOL) useCustomBackgrounds;
-- (NSPoint) crossHair1Position;
-- (NSPoint) crossHair2Position;
 @end

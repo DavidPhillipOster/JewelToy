@@ -24,18 +24,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 @class Gem;
 
 @interface Game : NSObject
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSMutableArray *scoreBubbles;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL checkBoardForThrees;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL boardHasMoves;
+@property (NS_NONATOMIC_IOSONLY, readonly) NSPoint hintPoint;
+@property (NS_NONATOMIC_IOSONLY, readonly) int score;
+@property (NS_NONATOMIC_IOSONLY, readonly) float collectGemsFaded;
+@property (NS_NONATOMIC_IOSONLY, readonly) int bonusMultiplier;
 
-- (id) init;
-- (id) initWithImagesFrom:(NSArray *) imageArray;
-- (id) initWithSpritesFrom:(NSArray *) spriteArray;
-- (void) dealloc;
+- (instancetype) init NS_DESIGNATED_INITIALIZER;
+- (instancetype) initWithSpritesFrom:(NSArray *) spriteArray NS_DESIGNATED_INITIALIZER;
 
 - (void) setImagesFrom:(NSArray *) imageArray;
 - (void) setSpritesFrom:(NSArray *) spriteArray;
 
 - (int) randomGemTypeAt:(int)x :(int)y;
 - (Gem *) gemAt:(int)x :(int)y;
-- (NSMutableArray *)scoreBubbles;
 
 - (void) setMuted:(BOOL)value;
 
@@ -45,22 +49,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (BOOL) testForThreeAt:(int) x :(int) y;
 - (BOOL) checkForThreeAt:(int) x :(int) y;
 - (BOOL) finalTestForThreeAt:(int) x :(int) y;
-- (BOOL) checkBoardForThrees;
-- (BOOL) boardHasMoves;
 - (void) showAllBoardMoves;
 
-// - (void) removeFadedGemsAndReorganiseWithImagesFrom:(NSArray *) imageArray;
 - (void) removeFadedGemsAndReorganiseWithSpritesFrom:(NSArray *) spriteArray;
 - (void) shake;
 - (void) erupt;
 - (void) explodeGameOver;
-- (void) wholeNewGameWithImagesFrom:(NSArray *) imageArray;
 - (void) wholeNewGameWithSpritesFrom:(NSArray *) spriteArray;
 
-- (NSPoint)	hintPoint;
-- (int) score;
-- (float) collectGemsFaded;
-- (int) bonusMultiplier;
 - (void) increaseBonusMultiplier;
 
 @end

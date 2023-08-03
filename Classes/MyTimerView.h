@@ -22,27 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #import <Cocoa/Cocoa.h>
 
 @interface MyTimerView : NSView
-{
-    float meter;
-    float decrement;
-    id	target;
-    SEL	runOutSelector;
-    SEL runOverSelector;
-    NSTimer	*timer;
-    BOOL	isRunning;
-    
-    NSColor	*color1;
-    NSColor	*color2;
-    NSColor	*colorOK;
-    NSColor	*backColor;
-}
-// Standard view create/free methods
-- (id)initWithFrame:(NSRect)frame;
-- (void)dealloc;
+@property (NS_NONATOMIC_IOSONLY, getter=isOpaque, readonly) BOOL opaque;
+@property (NS_NONATOMIC_IOSONLY, readonly) float meter;
+
+// Standard view create method
+- (instancetype)initWithFrame:(NSRect)frame;
 
 // Drawing
 - (void)drawRect:(NSRect)rect;
-- (BOOL)isOpaque;
 
 // Utility
 - (void) setPaused:(BOOL) value;
@@ -56,7 +43,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                   whenRunOver:(SEL) runOverSel;
 - (void) runTimer;
 - (void) setTimer:(float)value;
-- (float) meter;
 
 
 @end
