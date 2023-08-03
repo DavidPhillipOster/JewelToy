@@ -25,15 +25,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #import "GameController.h"
 #import "Game.h"
 #import "Gem.h"
+#import "JewelToy-Swift.h"
 
 //
 // MW...
 //
 #import "ScoreBubble.h"
 //
-// Sprite
-//
-#import "Sprite.h"
 
 /// Before macOS 11, fall back to the previous code.
 ///
@@ -134,21 +132,21 @@ static NSString *UTI(NSString *path){
     // Make the Open GL Sprites!
     //
     backgroundSprite = [[Sprite alloc] initWithImage:backgroundImage
-                                             cropRectangle:NSMakeRect(0.0, 0.0, backgroundImage.size.width, backgroundImage.size.height)
+                                             cropRect:NSMakeRect(0.0, 0.0, backgroundImage.size.width, backgroundImage.size.height)
                                                       size:NSMakeSize(384.0,384.0)];
 
     crosshairSprite = [[Sprite alloc] initWithImage:crosshairImage
-                                            cropRectangle:NSMakeRect(0.0, 0.0, crosshairImage.size.width, crosshairImage.size.height)
+                                            cropRect:NSMakeRect(0.0, 0.0, crosshairImage.size.width, crosshairImage.size.height)
                                                      size:NSMakeSize(48.0,48.0)];
     movehintSprite = [[Sprite alloc] initWithImage:movehintImage
-                                           cropRectangle:NSMakeRect(0.0, 0.0, movehintImage.size.width, movehintImage.size.height)
+                                           cropRect:NSMakeRect(0.0, 0.0, movehintImage.size.width, movehintImage.size.height)
                                                     size:NSMakeSize(48.0,48.0)];
     gemSpriteArray = [NSMutableArray arrayWithCapacity:0];
     for (i = 0; i < 7; i++)
     {
         NSImage	*image = gemImageArray[i];
         Sprite *sprite = [[Sprite alloc] initWithImage:image
-                                                     cropRectangle:NSMakeRect(0.0, 0.0, image.size.width, image.size.height)
+                                                     cropRect:NSMakeRect(0.0, 0.0, image.size.width, image.size.height)
                                                               size:NSMakeSize(48.0,48.0)];
         
         [gemSpriteArray addObject:sprite];
@@ -162,7 +160,7 @@ static NSString *UTI(NSString *path){
         NSRectFill(NSMakeRect(0,0,384,384));
         [legendImage unlockFocus];
         legendSprite = [[Sprite alloc] initWithImage:legendImage
-                                            cropRectangle:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)
+                                            cropRect:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)
                                                     size:legendImage.size];
         
         [self setLegend:[NSImage imageNamed:@"title"]];
@@ -396,9 +394,9 @@ static NSString *UTI(NSString *path){
         
         //NSLog(@"Image size is %f x %f",[backgroundImage size].width, [backgroundImage size].height);
 
-        [backgroundSprite substituteTextureFromImage:backgroundImage];
+        [backgroundSprite substituteWithImage:backgroundImage];
         //backgroundSprite = [[OpenGLSprite alloc] initWithImage:backgroundImage
-        //                                         cropRectangle:NSMakeRect(0.0, 0.0, [backgroundImage size].width, [backgroundImage size].height)
+        //                                         cropRect:NSMakeRect(0.0, 0.0, [backgroundImage size].width, [backgroundImage size].height)
         //                                                 size:NSMakeSize(384.0,384.0)];
     }
     else
@@ -409,7 +407,7 @@ static NSString *UTI(NSString *path){
         else
             backgroundImage = [NSImage imageNamed:@"background"];
         backgroundSprite = [[Sprite alloc] initWithImage:backgroundImage
-                                                 cropRectangle:NSMakeRect(0.0, 0.0, backgroundImage.size.width, backgroundImage.size.height)
+                                                 cropRect:NSMakeRect(0.0, 0.0, backgroundImage.size.width, backgroundImage.size.height)
                                                           size:NSMakeSize(384.0,384.0)];
     }    
 }
@@ -443,8 +441,8 @@ static NSString *UTI(NSString *path){
         [(NSImage *)value drawAtPoint:legendPoint fromRect:r operation:NSCompositingOperationSourceOver fraction:1];
     }
     [legendImage unlockFocus];
-    [legendSprite replaceTextureFromImage:legendImage
-                            cropRectangle:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)];
+    [legendSprite replaceWithImage:legendImage
+                            cropRect:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)];
 
     legend = legendSprite;
     ticsSinceLastMove = 0;
@@ -497,9 +495,10 @@ static NSString *UTI(NSString *path){
 
     if (backgroundSprite)
     {
-        [backgroundSprite blitToX:0.0
-                                Y:0.0
-                                Z:0.0];
+        [backgroundSprite blitWithX:0.0
+                                y:0.0
+                                z:0.0
+                                alpha:1.0];
     }
     if ((game)&&(!paused))
     {
@@ -519,9 +518,9 @@ static NSString *UTI(NSString *path){
 
     if ([gameController gameState] == GAMESTATE_AWAITINGSECONDCLICK)
     {
-        [crosshairSprite blitToX:[gameController crossHair1Position].x
-                               Y:[gameController crossHair1Position].y
-                               Z:-0.5];
+        [crosshairSprite blitWithX:[gameController crossHair1Position].x
+                               y:[gameController crossHair1Position].y
+                               z:-0.5 alpha:1];
     }
     if (showHighScores)
     {
@@ -532,10 +531,10 @@ static NSString *UTI(NSString *path){
     {
         if ((ticsSinceLastMove > 500)&&(showHint))
         {
-            [movehintSprite blitToX:[game hintPoint].x
-                                   Y:[game hintPoint].y
-                                   Z:-0.4
-                              Alpha:(sin((ticsSinceLastMove-497.0)/4.0)+1.0)/2.0];
+            [movehintSprite blitWithX:[game hintPoint].x
+                                   y:[game hintPoint].y
+                                   z:-0.4
+                              alpha:(sin((ticsSinceLastMove-497.0)/4.0)+1.0)/2.0];
         }
     }
     else
@@ -545,7 +544,7 @@ static NSString *UTI(NSString *path){
         if ([legend isKindOfClass:[Sprite class]])
         {
             //NSLog(@"Blitting legend");
-            [legend blitToX:0.0 Y:0.0 Z:-0.75];
+            [legend blitWithX:0.0 y:0.0 z:-0.75 alpha:1];
         }
     }
   
@@ -593,8 +592,8 @@ static NSString *UTI(NSString *path){
         [s2 drawAtPoint:p2 withAttributes:attr];
     }
     [legendImage unlockFocus];
-    [legendSprite replaceTextureFromImage:legendImage
-                            cropRectangle:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)];
+    [legendSprite replaceWithImage:legendImage
+                            cropRect:NSMakeRect(0.0, 0.0, legendImage.size.width, legendImage.size.height)];
 
     legend = legendSprite;
     

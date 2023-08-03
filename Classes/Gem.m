@@ -21,9 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #import "Gem.h"
-
-// Open GL
-#import "Sprite.h"
+#import "JewelToy-Swift.h"
 
 @implementation Gem {
     int		gemType;
@@ -210,15 +208,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
 - (void) drawSprite {
     if (state == GEMSTATE_FADING) {
-        [[self sprite] blitToX:positionOnScreen.x
-                             Y:positionOnScreen.y
-                             Z:GEM_SPRITE_Z
-                         Alpha:(animationCounter / FADE_STEPS)];
+        [sprite blitWithX:positionOnScreen.x
+                             y:positionOnScreen.y
+                             z:GEM_SPRITE_Z
+                         alpha:(animationCounter / FADE_STEPS)];
    } else {
-        [[self sprite] blitToX:positionOnScreen.x
-                             Y:positionOnScreen.y
-                             Z:GEM_SPRITE_Z
-                         Alpha:1.0];
+        [sprite blitWithX:positionOnScreen.x
+                             y:positionOnScreen.y
+                             z:GEM_SPRITE_Z
+                         alpha:1.0];
   }
 }
 

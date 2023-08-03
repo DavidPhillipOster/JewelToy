@@ -21,8 +21,8 @@
  ----====----====----====----====----====----====----====----====----====---- */
 
 #import "ScoreBubble.h"
-
-#import "Sprite.h"
+#import "JewelToy-Swift.h"
+@class Sprite;
 
 NSMutableDictionary *stringAttributes;
 
@@ -59,10 +59,10 @@ NSMutableDictionary *stringAttributes;
 	stringAttributes[NSForegroundColorAttributeName] = [NSColor yellowColor];	
 	[str drawAtPoint:NSMakePoint(1,1) withAttributes:stringAttributes];
 	[_image unlockFocus];
-        
+
         //
         sprite = [[Sprite alloc] initWithImage:_image
-                                 cropRectangle:NSMakeRect(0, 0, _image.size.width, _image.size.height)
+                                      cropRect:NSMakeRect(0, 0, _image.size.width, _image.size.height)
                                           size:_image.size];
         //
     }
@@ -75,10 +75,10 @@ NSMutableDictionary *stringAttributes;
     if (alpha>1) {
         alpha= 1;
     }
-    [sprite blitToX:_screenLocation.x
-                  Y:_screenLocation.y
-                  Z:SCOREBUBBLE_SPRITE_Z
-              Alpha:alpha];
+    [sprite blitWithX:_screenLocation.x
+                  y:_screenLocation.y
+                  z:SCOREBUBBLE_SPRITE_Z
+              alpha:alpha];
 }
 
 -(int)animate
