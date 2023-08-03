@@ -20,14 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 #import "MyTimerView.h"
-#import <objc/objc-runtime.h>
+
+typedef void (^Block)(void);
 
 @implementation MyTimerView {
     float meter;
     float decrement;
-    id	target;
-    SEL	runOutSelector;
-    SEL runOverSelector;
+    Block runOutBlock;
+    Block runOverBlock;
     NSTimer	*timer;
     BOOL	isRunning;
 
@@ -106,14 +106,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 - (void) setTimerRunningEvery:(NSTimeInterval) timeInterval
             decrement:(float) value
-            withTarget:(id) targ
-            whenRunOut:(SEL) runOutSel
-            whenRunOver:(SEL) runOverSel
+            whenRunOut:(Block) runOutBlk
+            whenRunOver:(Block) runOverBlk
 {
     decrement = value;
-    target = targ;
-    runOutSelector = runOutSel;
-    runOverSelector = runOverSel;
+    runOutBlock = runOutBlk;
+    runOverBlock = runOverBlk;
     if (timer)
     {
         [timer invalidate];
@@ -134,7 +132,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         {
             isRunning = NO;
             // [target performSelector:runOverSelector];
-            ((void (*)(id, SEL))objc_msgSend)(target, runOverSelector);
+            if (runOverBlock)runOverBlock();
             return;
         }
         [self decrementMeter:decrement];
@@ -142,7 +140,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         {
             isRunning = NO;
             // [target performSelector:runOutSelector];
-            ((void (*)(id, SEL))objc_msgSend)(target, runOutSelector);
+            if (runOutBlock) runOutBlock();
             return;
         }
     }

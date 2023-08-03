@@ -24,7 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #import "Game.h"
 #import "GameView.h"
 #import "Gem.h"
-#import <objc/objc-runtime.h>
+
+typedef void (^Block)(void);
 
 @interface GameController(Private)
 - (void)setHighScores:(NSArray *)inarray;
@@ -72,7 +73,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     NSString		*customBackgroundFolderPath;
 
     int			gameState, gemsSoFar, chx1, chy1, chx2, chy2;
-    SEL			whatNext;
+    Block	    whatNext;
 }
 
 
@@ -336,12 +337,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     [gameView setPaused:NO];
     [gameView setMuted:muted];
     [gameView setShowHint:!freePlay];//		FREEPLAY
-    
+
+    __weak typeof(self) weakSelf = self;
     [timerView setTimerRunningEvery:0.5/gameSpeed
                 decrement:(0.5/gameTime)
-                withTarget:self
-                whenRunOut:@selector(runOutOfTime)
-                whenRunOver:@selector(bonusAwarded)];
+                whenRunOut:^{ [weakSelf runOutOfTime]; }
+                whenRunOver:^{ [weakSelf bonusAwarded]; }];
     
     if (freePlay)
     {
@@ -352,7 +353,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     [timerView setPaused:YES];
         
     [gameView setLastMoveDate];
-    [self startAnimation:@selector(waitForFirstClick)];
+    [self startAnimation:^{ [weakSelf waitForFirstClick]; }];
 }
 
 - (IBAction)abortGame:(id)sender
@@ -581,7 +582,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     abortGame = YES;
     [gameView setHTMLLegend:gameOverString];
     [game shake];
-    [self startAnimation:@selector(waitForFirstClick)];
+    __weak typeof(self) weakSelf = self;
+    [self startAnimation:^{ [weakSelf waitForFirstClick]; }];
 }
 
 - (void)checkHiScores
@@ -620,16 +622,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     if (gameSpeed < SPEED_LIMIT)		// capping speed limit
         gameSpeed = gameSpeed * 1.5;
     //NSLog(@"...gamesSpeed %f",gameSpeed);
+    __weak typeof(self) weakSelf = self;
     [timerView setTimerRunningEvery:0.5/gameSpeed
                 decrement:(0.5/gameTime)
-                withTarget:self
-                whenRunOut:@selector(runOutOfTime)
-                whenRunOver:@selector(bonusAwarded)];
+                whenRunOut:^{ [weakSelf runOutOfTime];}
+                whenRunOver:^{ [weakSelf bonusAwarded];}];
                 
     if (freePlay)	[timerView setDecrement:0];//	FREEPLAY
 }
 
-- (void)startAnimation:(SEL)andThenSelector;
+- (void)startAnimation:(Block)andThenSelector;
 {
     [animationTimerLock lock];
     //
@@ -657,10 +659,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     //
     [animationTimerLock unlock];
     
-    if (whatNext){
-        //	[self performSelector:whatNext];
-        ((void (*)(id, SEL))objc_msgSend)(self, whatNext);
-    }
+    if (whatNext)whatNext();
         
     [gameView setNeedsDisplay:YES];
 }
@@ -682,7 +681,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     //NSLog(@"newBoard1");
     [game erupt];
-    [self startAnimation:@selector(newBoard2)];
+    __weak typeof(self) weakSelf = self;
+    [self startAnimation:^{ [weakSelf newBoard2]; }];
 }
 
 - (void)newBoard2
@@ -707,19 +707,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     }
     [gameView newBackground];
     [gameView setLegend:nil];
-    [self startAnimation:@selector(testForThreesAgain)];
+    __weak typeof(self) weakSelf = self;
+    [self startAnimation:^{ [weakSelf testForThreesAgain]; }];
 }
 
 - (void)waitForFirstClick
 {
     //NSLog(@"waitForFirstClick");
     /*- if (!freePlay)  MW CHANGE -*/	[timerView setPaused:NO];
+    __weak typeof(self) weakSelf = self;
     if (abortGame)
     {
         [timerView setTimer:0.5];
         gameState = GAMESTATE_GAMEOVER;
         [game explodeGameOver];
-        [self startAnimation:@selector(waitForNewGame)];
+        [self startAnimation:^{ [weakSelf waitForNewGame]; }];
         return;
     }
     if (![game boardHasMoves])
@@ -728,8 +730,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         [gameView setHTMLLegend:noMoreMovesString];
         [game shake];
         
-        if (freePlay)	[self startAnimation:@selector(runOutOfTime)];//	FREEPLAY
-        else		[self startAnimation:@selector(newBoard1)];//	FREEPLAY
+        if (freePlay)	[self startAnimation:^{ [weakSelf runOutOfTime]; }];//	FREEPLAY
+        else		[self startAnimation:^{ [weakSelf newBoard1]; }];//	FREEPLAY
         
         return;
     }
@@ -809,7 +811,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     }
     [game swap:chx1:chy1 and:chx2:chy2];
     gameState = GAMESTATE_SWAPPING;
-    [self startAnimation:@selector(testForThrees)];
+    __weak typeof(self) weakSelf = self;
+    [self startAnimation:^{ [weakSelf testForThrees]; }];
 }
 
     // test for threes
@@ -824,10 +827,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
-    if (anyThrees)
-        [self startAnimation:@selector(removeThreesAndReplaceGems)];	// fade gems
-    else
+    if (anyThrees) {
+        __weak typeof(self) weakSelf = self;
+        [self startAnimation:^{ [weakSelf removeThreesAndReplaceGems];}];	// fade gems
+    } else {
         [self unSwap];
+    }
 }    
 
     //// repeat:	remove threes
@@ -838,7 +843,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     // deal with fading
     [game removeFadedGemsAndReorganiseWithSpritesFrom:[gameView spriteArray]];
     
-    [self startAnimation:@selector(testForThreesAgain)];	// gems fall down
+    __weak typeof(self) weakSelf = self;
+    [self startAnimation:^{ [weakSelf testForThreesAgain];}];	// gems fall down
 }    
 
 - (void)testForThreesAgain
@@ -852,10 +858,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
-    if (anyThrees)
-        [self startAnimation:@selector(removeThreesAndReplaceGems)];	// fade gems
-    else
+    if (anyThrees) {
+        __weak typeof(self) weakSelf = self;
+        [self startAnimation:^{ [weakSelf removeThreesAndReplaceGems]; }];	// fade gems
+    } else {
         [self waitForFirstClick];
+    }
 }   
     //// 		allow gems to fall
     //// 		test for threes
@@ -880,7 +888,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     }
     [game swap:chx1:chy1 and:chx2:chy2];
     gameState = GAMESTATE_SWAPPING;
-    [self startAnimation:@selector(waitForFirstClick)];
+    __weak typeof(self) weakSelf = self;
+    [self startAnimation:^{ [weakSelf waitForFirstClick];}];
 }    
 
 

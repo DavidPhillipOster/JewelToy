@@ -38,9 +38,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void) decrementMeter:(float) value;
 - (void) setTimerRunningEvery:(NSTimeInterval) timeInterval
                     decrement:(float) value
-                   withTarget:(id) targ
-                   whenRunOut:(SEL) runOutSel
-                  whenRunOver:(SEL) runOverSel;
+                   whenRunOut:(void (^)(void)) runOutBlock
+                  whenRunOver:(void (^)(void)) runOverBlock;
 - (void) runTimer;
 - (void) setTimer:(float)value;
 

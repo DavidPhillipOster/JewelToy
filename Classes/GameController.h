@@ -76,7 +76,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (void)checkHiScores;
 - (void)bonusAwarded;
 
-- (void)startAnimation:(SEL)andThenSelector;
+- (void)startAnimation:(void (^)(void))andThenBlock;
 - (void)animationEnded;
 
 - (void)waitForNewGame;
