@@ -29,9 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
 // MW...
-//
-#import "ScoreBubble.h"
-//
 
 /// Before macOS 11, fall back to the previous code.
 ///
@@ -326,7 +323,7 @@ static NSString *UTI(NSString *path){
         // animate bubbles, if any
         for (b=0; b<[game scoreBubbles].count; b++) {
             ScoreBubble *sb= [game scoreBubbles][b];
-            int more= [sb animate];
+            int more = (int)[sb animate];
             needsUpdate = TRUE;
             if (!more) {
                 [[game scoreBubbles] removeObjectAtIndex:b];

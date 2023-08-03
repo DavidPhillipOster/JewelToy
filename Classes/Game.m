@@ -21,10 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #import "Game.h"
 #import "Gem.h"
+#import "JewelToy-Swift.h"
 //
 // MW...
-//
-#import "ScoreBubble.h"
 //
 
 @implementation Game {
@@ -227,9 +226,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     // MW's scorebubble
     //
     if (bonus>0)
-        [scoreBubbles addObject:[ScoreBubble scoreWithValue:bonus*bonusMultiplier
-                                                         At:NSMakePoint(scorebubble_x*48+24, scorebubble_y*48+24)
-                                                   Duration:40]];
+        [scoreBubbles addObject:[[ScoreBubble alloc] initWithValue:bonus*bonusMultiplier
+                                                                at:NSMakePoint(scorebubble_x*48+24, scorebubble_y*48+24)
+                                                          duration:40]];
     //
     score += bonus * bonusMultiplier;
     return result;
