@@ -70,17 +70,17 @@ class Xem {
     }
 
     func restStep(){
-        positionOnScreen = NSMakePoint(positionOnBoard.x*dim, positionOnBoard.y*dim)
+        positionOnScreen = CGPoint(x:positionOnBoard.x*dim, y:positionOnBoard.y*dim)
         animationCounter = 0
     }
 
     func fadeStep() {
-        positionOnScreen = NSMakePoint(positionOnBoard.x*dim, positionOnBoard.y*dim)
+        positionOnScreen = CGPoint(x:positionOnBoard.x*dim, y:positionOnBoard.y*dim)
         if 0 < animationCounter { animationCounter -= 1 }
     }
 
     func shiverStep() {
-        positionOnScreen = NSMakePoint(positionOnBoard.x*dim + Double(Int16(arc4random_uniform(3)))-1, positionOnBoard.y*dim)
+        positionOnScreen = CGPoint(x:positionOnBoard.x*dim + Double(Int16(arc4random_uniform(3)))-1, y:positionOnBoard.y*dim)
     }
 
     func fallStep() {

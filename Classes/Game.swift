@@ -86,7 +86,7 @@ class Xame {
     }
 
     func hintPoint() -> CGPoint {
-        return NSMakePoint(CGFloat(hintX*DIM), CGFloat(hintY*DIM))
+        return CGPoint(x:CGFloat(hintX*DIM), y:CGFloat(hintY*DIM))
     }
 
     func increaseBonusMultiplier() {
@@ -299,7 +299,7 @@ class Xame {
             bonus *= cascade
         }
         if 0 < bonus {
-            let p = NSMakePoint(scorebubble_x*CGFloat(DIM)+CGFloat(DIM/2), scorebubble_y*CGFloat(DIM)+CGFloat(DIM/2))
+            let p = CGPoint(x:scorebubble_x*CGFloat(DIM)+CGFloat(DIM/2), y:scorebubble_y*CGFloat(DIM)+CGFloat(DIM/2))
             scoreBubbles.append(XcoreBubble(value: bonus*bonusMultiplier, at: p, duration: 40))
         }
         score += bonus * bonusMultiplier

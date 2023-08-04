@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 #import "GameController.h"
-#import "GameView.h"
 #import "JewelToy-Swift.h"
 
 typedef void (^Block)(void);
@@ -331,7 +330,7 @@ typedef void (^Block)(void);
     
     [game setMuted:muted];
     [gameView setGame:game];
-    [gameView setLegend:nil];
+    [gameView setLengendNil];
     [gameView setPaused:NO];
     [gameView setMuted:muted];
     [gameView setShowHint:!freePlay];//		FREEPLAY
@@ -427,7 +426,7 @@ typedef void (^Block)(void);
     else
     {
         [gameView setPaused:NO];
-        [gameView setLegend:nil];
+        [gameView setLengendNil];
         pauseGameMenuItem.title = [[NSBundle mainBundle]
                             localizedStringForKey:@"PauseGameMenuItemTitle"
                             value:nil table:nil];
@@ -667,7 +666,7 @@ typedef void (^Block)(void);
     [self checkHiScores];
     
     [game wholeNewGameWithSprites:[gameView spriteArray]];
-    [gameView setLegend:titleImage];
+    [gameView setLengendWithImage:titleImage];
     [easyGameButton setEnabled:YES];
     [hardGameButton setEnabled:YES];
     [toughGameButton setEnabled:YES];
@@ -704,7 +703,7 @@ typedef void (^Block)(void);
         }
     }
     [gameView newBackground];
-    [gameView setLegend:nil];
+    [gameView setLengendNil];
     __weak typeof(self) weakSelf = self;
     [self startAnimation:^{ [weakSelf testForThreesAgain]; }];
 }

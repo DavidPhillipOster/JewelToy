@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		63533E6A0CD3D804002A7B5F /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 63533E620CD3D804002A7B5F /* icon.icns */; };
 		63533F7B0CD553EF002A7B5F /* GameController.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F6D0CD553EF002A7B5F /* GameController.m */; };
-		63533F7C0CD553EF002A7B5F /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F6F0CD553EF002A7B5F /* GameView.m */; };
 		63533F890CD5543A002A7B5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F880CD5543A002A7B5F /* main.m */; };
 		63533F960CD55517002A7B5F /* explosion.aif in Resources */ = {isa = PBXBuildFile; fileRef = 63533F910CD55517002A7B5F /* explosion.aif */; };
 		63533F970CD55517002A7B5F /* no.aif in Resources */ = {isa = PBXBuildFile; fileRef = 63533F920CD55517002A7B5F /* no.aif */; };
@@ -50,6 +49,7 @@
 		63E8F7182A7C7D68006CF69C /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F7172A7C7D68006CF69C /* TimerView.swift */; };
 		63E8F71A2A7C8B10006CF69C /* Gem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F7192A7C8B10006CF69C /* Gem.swift */; };
 		63E8F71C2A7CAF97006CF69C /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F71B2A7CAF97006CF69C /* Game.swift */; };
+		63E8F7372A7D652E006CF69C /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F7362A7D652E006CF69C /* GameView.swift */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -86,8 +86,6 @@
 		63533E620CD3D804002A7B5F /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = Resources/icon.icns; sourceTree = "<group>"; };
 		63533F6C0CD553EF002A7B5F /* GameController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GameController.h; sourceTree = "<group>"; };
 		63533F6D0CD553EF002A7B5F /* GameController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = GameController.m; sourceTree = "<group>"; };
-		63533F6E0CD553EF002A7B5F /* GameView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
-		63533F6F0CD553EF002A7B5F /* GameView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
 		63533F880CD5543A002A7B5F /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		63533F910CD55517002A7B5F /* explosion.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = explosion.aif; sourceTree = "<group>"; };
 		63533F920CD55517002A7B5F /* no.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = no.aif; sourceTree = "<group>"; };
@@ -126,6 +124,7 @@
 		63E8F7172A7C7D68006CF69C /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		63E8F7192A7C8B10006CF69C /* Gem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gem.swift; sourceTree = "<group>"; };
 		63E8F71B2A7CAF97006CF69C /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		63E8F7362A7D652E006CF69C /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Resources/Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* JewelToy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JewelToy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -223,8 +222,7 @@
 			children = (
 				63533F6C0CD553EF002A7B5F /* GameController.h */,
 				63533F6D0CD553EF002A7B5F /* GameController.m */,
-				63533F6E0CD553EF002A7B5F /* GameView.h */,
-				63533F6F0CD553EF002A7B5F /* GameView.m */,
+				63E8F7362A7D652E006CF69C /* GameView.swift */,
 				63E8F71B2A7CAF97006CF69C /* Game.swift */,
 				63E8F7192A7C8B10006CF69C /* Gem.swift */,
 				63E8F7132A7C4A10006CF69C /* Sprite.swift */,
@@ -396,9 +394,9 @@
 				63E8F71A2A7C8B10006CF69C /* Gem.swift in Sources */,
 				63E8F7182A7C7D68006CF69C /* TimerView.swift in Sources */,
 				63533F7B0CD553EF002A7B5F /* GameController.m in Sources */,
-				63533F7C0CD553EF002A7B5F /* GameView.m in Sources */,
 				63E8F7142A7C4A10006CF69C /* Sprite.swift in Sources */,
 				63E8F71C2A7CAF97006CF69C /* Game.swift in Sources */,
+				63E8F7372A7D652E006CF69C /* GameView.swift in Sources */,
 				63E8F7162A7C593C006CF69C /* ScoreBubble.swift in Sources */,
 				63533F890CD5543A002A7B5F /* main.m in Sources */,
 			);

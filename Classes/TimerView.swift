@@ -69,11 +69,12 @@ import AppKit
 
     @objc public func setTimerRunningEvery(_ every:Double, decrement:Double, whenRunOut:@escaping () -> Void , whenRunOver:@escaping () -> Void) {
         self.decrement = decrement
+        meter = 0.5
         runOutBlock = whenRunOut
         runOverBlock = whenRunOver
         aTimer?.invalidate()
-        aTimer = Timer.scheduledTimer(withTimeInterval: every, repeats: true, block: { bTimer in
-            self.runTimer()
+        aTimer = Timer.scheduledTimer(withTimeInterval: every, repeats: true, block: { [weak self] bTimer in
+            self?.runTimer()
         })
         isRunning = true
     }

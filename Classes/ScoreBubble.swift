@@ -44,9 +44,9 @@ class XcoreBubble {
         let image = NSImage.init(size: strSize)
         image.lockFocus()
         XcoreBubble.stringAttributes[NSAttributedString.Key.foregroundColor] = NSColor.black
-        s.draw(at: NSMakePoint(2,0), withAttributes: XcoreBubble.stringAttributes)
+        s.draw(at: CGPoint(x:2, y:0), withAttributes: XcoreBubble.stringAttributes)
         XcoreBubble.stringAttributes[NSAttributedString.Key.foregroundColor] = NSColor.yellow
-        s.draw(at: NSMakePoint(1,1), withAttributes: XcoreBubble.stringAttributes)
+        s.draw(at: CGPoint(x:1, y:1), withAttributes: XcoreBubble.stringAttributes)
         image.unlockFocus()
         _sprite = Xprite(image: image, cropRect: NSMakeRect(0, 0, image.size.width, image.size.height), size: image.size)
     }

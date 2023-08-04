@@ -109,7 +109,7 @@
                             <action selector="toggleMute:" target="206" id="275"/>
                         </connections>
                     </button>
-                    <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="290" customClass="GameView">
+                    <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="290" customClass="GameView" customModule="JewelToy" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="128" width="384" height="384"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <connections>
