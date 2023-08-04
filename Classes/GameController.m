@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #import "GameController.h"
 #import "Game.h"
 #import "GameView.h"
-#import "Gem.h"
 #import "JewelToy-Swift.h"
 
 typedef void (^Block)(void);
@@ -696,7 +695,7 @@ typedef void (^Block)(void);
         {
             gem = [game gemAt:i:j];
             //NSLog(@"..gem..%@",gem);
-            r = rand() % 7;
+            r = arc4random_uniform(7);
             [gem setGemType:r];
             //[gem setImage:[[gameView imageArray] objectAtIndex:r]];
             [gem setSprite:[gameView spriteArray][r]];

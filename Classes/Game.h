@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (instancetype) init NS_DESIGNATED_INITIALIZER;
 - (instancetype) initWithSpritesFrom:(NSArray *) spriteArray NS_DESIGNATED_INITIALIZER;
 
-- (void) setImagesFrom:(NSArray *) imageArray;
 - (void) setSpritesFrom:(NSArray *) spriteArray;
 
 - (int) randomGemTypeAt:(int)x :(int)y;

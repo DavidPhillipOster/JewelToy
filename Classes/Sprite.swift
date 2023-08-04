@@ -48,6 +48,9 @@ class Xprite {
 
 @objc public class Sprite : NSObject {
     let s:Xprite
+    init(xprite:Xprite) {
+      s = xprite
+    }
     @objc public init(image: NSImage, cropRect:CGRect, size:CGSize) {
         s = Xprite(image:image, cropRect: cropRect, size: size)
     }

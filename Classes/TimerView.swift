@@ -41,10 +41,7 @@ import AppKit
         set(b){ isRunning = !b }
     }
 
-    public override var isOpaque:Bool {
-        get { true }
-        set(a){}
-    }
+    public override var isOpaque:Bool { true }
 
     public override func draw(_ dirtyRect: NSRect) {
         backColor.setFill()

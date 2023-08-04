@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 #import "Game.h"
-#import "Gem.h"
 #import "JewelToy-Swift.h"
 //
 // MW...
@@ -62,9 +61,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
         {
-            //int r = (rand() % 3)*2+((i+j)%2);
+            //int r = (arc4random_uniform(3))*2+((i+j)%2);
             int r = [self randomGemTypeAt:i:j];
-            board[i][j] = [Gem gemWithNumber:r andSprite:spriteArray[r]];
+            board[i][j] = [[Gem alloc] init:r sprite:spriteArray[r]];
             [board[i][j] setPositionOnBoard:i:j];
             [board[i][j] setPositionOnScreen:i*48:j*48];
             [board[i][j] shake];
@@ -78,14 +77,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     return self;
 }
 
-- (void) setImagesFrom:(NSArray *) imageArray
-{
-    int i,j;
-    for (i = 0; i < 8; i++)
-        for (j = 0; j < 8; j++)
-            [board[i][j] setImage:imageArray[[board[i][j] gemType]]];
-}
-
 - (void) setSpritesFrom:(NSArray *) spriteArray
 {
     int i,j;
@@ -97,7 +88,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (int) randomGemTypeAt:(int)x :(int)y
 {
     int c = (x+y) % 2;
-    int r = rand() % 7;
+    int r = arc4random_uniform(7);
     if (c)
         return (r & 6);	// even
     if (r == 6)
@@ -124,15 +115,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     int i,j;
     muted = value;
-    if (muted)
-    	for (i = 0; i < 8; i++)
-            for (j = 0; j < 8; j++)
-                [board[i][j] setSoundsTink:NULL Sploink:NULL];
-    else
-    	for (i = 0; i < 8; i++)
-            for (j = 0; j < 8; j++)
-                [board[i][j] setSoundsTink:[NSSound soundNamed:@"tink"] Sploink:[NSSound soundNamed:@"sploink"]];
-}    
+    for (i = 0; i < 8; i++)
+        for (j = 0; j < 8; j++)
+            [board[i][j] setMute:muted];
+}
 
 
 - (void) swap:(int)x1 :(int)y1 and:(int)x2 :(int)y2
@@ -157,10 +143,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     float scorebubble_x = -1.0;
     float scorebubble_y = -1.0;
     BOOL result = NO;
-    int	gemtype = [board[x][y] gemType];
+    int	gemtype = (int)[board[x][y] gemType];
     tx = x; ty = y; cx = x; cy = y;
     bonus = 0;
-    if ([board[x][y] state] == GEMSTATE_FADING)		result = YES;
+    if ([board[x][y] isFading])		result = YES;
     while ((tx > 0)&&([board[tx-1][y] gemType]==gemtype))	tx = tx-1;
     while ((cx < 7)&&([board[cx+1][y] gemType]==gemtype))	cx = cx+1;
     if ((cx-tx) >= 2)
@@ -174,7 +160,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             linebonus+= scorePerGem;
             [board[i][y] fade];
             for (j=7; j>y; j--) {
-                if ([board[i][j] state]!= GEMSTATE_FADING) {
+                if (![board[i][j] isFading]) {
                     [board[i][j] shiver];	//	MW prepare to fall
                 }
             }
@@ -200,7 +186,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             [board[x][i] fade];
         }
         for (j=7; j>cy; j--) {
-            if ([board[x][j] state]!= GEMSTATE_FADING) {
+            if (![board[x][j] isFading]) {
                 [board[x][j] shiver];		//	MW prepare to fall
             }
         }
@@ -238,10 +224,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     int	tx,ty,cx,cy;
     BOOL result = NO;
-    int	gemtype = [board[x][y] gemType];
+    int	gemtype = (int)[board[x][y] gemType];
     tx = x; ty = y; cx = x; cy = y;
 
-    if ([board[x][y] state] == GEMSTATE_FADING)	return YES;
+    if ([board[x][y] isFading])	return YES;
         
     while ((tx > 0)&&([board[tx-1][y] gemType]==gemtype))	tx = tx-1;
     while ((cx < 7)&&([board[cx+1][y] gemType]==gemtype))	cx = cx+1;
@@ -269,7 +255,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 - (BOOL) checkForThreeAt:(int) x :(int) y
 {
     int	tx,ty,cx,cy;
-    int	gemtype = [board[x][y] gemType];
+    int	gemtype = (int)[board[x][y] gemType];
     tx = x; ty = y; cx = x; cy = y;
     while ((tx > 0)&&([board[tx-1][y] gemType]==gemtype))	tx = tx-1;
     while ((cx < 7)&&([board[cx+1][y] gemType]==gemtype))	cx = cx+1;
@@ -291,7 +277,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     //
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
-        if ([board[i][j] state]!=GEMSTATE_FADING)
+        if (![board[i][j] isFading])
             result = result | [self testForThreeAt:i:j];
     // CASCADE BONUS check for reset
     if (!result) cascade = 1;
@@ -328,7 +314,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
         {
-            if ([board[i][j] state] == GEMSTATE_FADING)
+            if ([board[i][j] isFading])
             {
                 [board[i][j] erupt];
                 [board[i][j] setAnimationCounter:1];
@@ -388,7 +374,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         // let non-faded gems fall into place
         for (j = 0; j < 8; j++)
         {
-            if ([board[i][j] state] != GEMSTATE_FADING)
+            if (![board[i][j] isFading])
             {
                 column[y] = board[i][j];
                 if ([board[i][j] positionOnScreen].y > y*48)
@@ -401,10 +387,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         // transfer faded gems to top of column
         for (j = 0; j < 8; j++)
         {
-            if ([board[i][j] state] == GEMSTATE_FADING)
+            if ([board[i][j] isFading])
             {
                 // randomly reassign
-                int r = (rand() % 7);
+                int r = (arc4random_uniform(7));
                 [board[i][j]	setGemType:r];
                 [board[i][j]	setSprite:spriteArray[r]];
 
@@ -461,7 +447,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
         {
-            //int r = (rand() % 3)*2+((i+j)%2);
+            //int r = (arc4random_uniform(3))*2+((i+j)%2);
             int r = [self randomGemTypeAt:i:j];
             [board[i][j] setGemType:r];
             [board[i][j] setSprite:spriteArray[r]];
