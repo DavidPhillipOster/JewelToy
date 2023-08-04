@@ -12,7 +12,6 @@
 		63533F7B0CD553EF002A7B5F /* GameController.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F6D0CD553EF002A7B5F /* GameController.m */; };
 		63533F7C0CD553EF002A7B5F /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F6F0CD553EF002A7B5F /* GameView.m */; };
 		63533F7D0CD553EF002A7B5F /* Gem.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F710CD553EF002A7B5F /* Gem.m */; };
-		63533F7F0CD553EF002A7B5F /* MyTimerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F750CD553EF002A7B5F /* MyTimerView.m */; };
 		63533F890CD5543A002A7B5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 63533F880CD5543A002A7B5F /* main.m */; };
 		63533F960CD55517002A7B5F /* explosion.aif in Resources */ = {isa = PBXBuildFile; fileRef = 63533F910CD55517002A7B5F /* explosion.aif */; };
 		63533F970CD55517002A7B5F /* no.aif in Resources */ = {isa = PBXBuildFile; fileRef = 63533F920CD55517002A7B5F /* no.aif */; };
@@ -50,6 +49,7 @@
 		63533FFC0CD5565D002A7B5F /* Readme.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 63533FFB0CD5565D002A7B5F /* Readme.rtfd */; };
 		63E8F7142A7C4A10006CF69C /* Sprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F7132A7C4A10006CF69C /* Sprite.swift */; };
 		63E8F7162A7C593C006CF69C /* ScoreBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F7152A7C593C006CF69C /* ScoreBubble.swift */; };
+		63E8F7182A7C7D68006CF69C /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E8F7172A7C7D68006CF69C /* TimerView.swift */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -92,8 +92,6 @@
 		63533F6F0CD553EF002A7B5F /* GameView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
 		63533F700CD553EF002A7B5F /* Gem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Gem.h; sourceTree = "<group>"; };
 		63533F710CD553EF002A7B5F /* Gem.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Gem.m; sourceTree = "<group>"; };
-		63533F740CD553EF002A7B5F /* MyTimerView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = MyTimerView.h; sourceTree = "<group>"; };
-		63533F750CD553EF002A7B5F /* MyTimerView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = MyTimerView.m; sourceTree = "<group>"; };
 		63533F880CD5543A002A7B5F /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		63533F910CD55517002A7B5F /* explosion.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = explosion.aif; sourceTree = "<group>"; };
 		63533F920CD55517002A7B5F /* no.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = no.aif; sourceTree = "<group>"; };
@@ -129,6 +127,7 @@
 		63E8F7122A7C4A10006CF69C /* JewelToy-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JewelToy-Bridging-Header.h"; sourceTree = "<group>"; };
 		63E8F7132A7C4A10006CF69C /* Sprite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sprite.swift; sourceTree = "<group>"; };
 		63E8F7152A7C593C006CF69C /* ScoreBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreBubble.swift; sourceTree = "<group>"; };
+		63E8F7172A7C7D68006CF69C /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Resources/Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* JewelToy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JewelToy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -232,10 +231,9 @@
 				63533F6F0CD553EF002A7B5F /* GameView.m */,
 				63533F700CD553EF002A7B5F /* Gem.h */,
 				63533F710CD553EF002A7B5F /* Gem.m */,
-				63533F740CD553EF002A7B5F /* MyTimerView.h */,
-				63533F750CD553EF002A7B5F /* MyTimerView.m */,
 				63E8F7132A7C4A10006CF69C /* Sprite.swift */,
 				63E8F7152A7C593C006CF69C /* ScoreBubble.swift */,
+				63E8F7172A7C7D68006CF69C /* TimerView.swift */,
 				63E8F7122A7C4A10006CF69C /* JewelToy-Bridging-Header.h */,
 			);
 			path = Classes;
@@ -399,12 +397,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63E8F7182A7C7D68006CF69C /* TimerView.swift in Sources */,
 				63533F7A0CD553EF002A7B5F /* Game.m in Sources */,
 				63533F7B0CD553EF002A7B5F /* GameController.m in Sources */,
 				63533F7C0CD553EF002A7B5F /* GameView.m in Sources */,
 				63E8F7142A7C4A10006CF69C /* Sprite.swift in Sources */,
 				63533F7D0CD553EF002A7B5F /* Gem.m in Sources */,
-				63533F7F0CD553EF002A7B5F /* MyTimerView.m in Sources */,
 				63E8F7162A7C593C006CF69C /* ScoreBubble.swift in Sources */,
 				63533F890CD5543A002A7B5F /* main.m in Sources */,
 			);

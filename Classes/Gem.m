@@ -54,15 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     return self;
 }
 
-
-+ (Gem *) gemWithNumber:(int) d andImage:(NSImage *)img {
-    Gem	*result = [[Gem alloc] init];
-    [result setGemType:d];
-    [result setImage:img];
-    [result setSoundsTink:[NSSound soundNamed:@"tink"] Sploink:[NSSound soundNamed:@"sploink"]];
-    return result;
-}
-
 + (Gem *) gemWithNumber:(int) d andSprite:(Sprite *)aSprite {
     Gem	*result = [[Gem alloc] init];
     [result setGemType:d];

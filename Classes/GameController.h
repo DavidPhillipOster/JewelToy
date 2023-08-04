@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define TIMER_INTERVAL	0.04
 
-@class Game, GameView, MyTimerView;
+@class Game, GameView, TimerView;
 
 @interface GameController : NSObject
 @property (NS_NONATOMIC_IOSONLY, readonly) int gameState;

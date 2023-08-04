@@ -20,7 +20,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="384" height="512"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="195" customClass="MyTimerView">
+                    <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="195" customClass="TimerView" customModule="JewelToy" customModuleProvider="target">
                         <rect key="frame" x="20" y="104" width="344" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </customView>

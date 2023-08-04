@@ -20,10 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 #import "GameController.h"
-#import "MyTimerView.h"
 #import "Game.h"
 #import "GameView.h"
 #import "Gem.h"
+#import "JewelToy-Swift.h"
 
 typedef void (^Block)(void);
 
@@ -45,7 +45,7 @@ typedef void (^Block)(void);
     IBOutlet NSMenuItem		*abortGameMenuItem, *pauseGameMenuItem, *muteMenuItem;
     IBOutlet NSMenuItem		*freePlayMenuItem, *showHighScoresMenuItem, *resetHighScoresMenuItem;
     IBOutlet NSTextField	*scoreTextField, *bonusTextField;
-    IBOutlet MyTimerView	*timerView;
+    IBOutlet TimerView	*timerView;
     IBOutlet NSWindow		*gameWindow;
     IBOutlet NSPanel		*hiScorePanel;
     IBOutlet NSTextField	*hiScorePanelScoreTextField, *hiScorePanelNameTextField;
