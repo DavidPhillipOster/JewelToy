@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 #import "GameController.h"
-#import "Game.h"
 #import "GameView.h"
 #import "JewelToy-Swift.h"
 
@@ -152,7 +151,7 @@ typedef void (^Block)(void);
             //[gameView loadImageArray];
             [gameView graphicSetUp];
             [gameView newBackground];
-            if (game)	[game setSpritesFrom:[gameView spriteArray]];
+            if (game)	[game setSprites:[gameView spriteArray]];
             [gameView setNeedsDisplay:YES];
         }
         prefsPanel = nil;
@@ -321,12 +320,12 @@ typedef void (^Block)(void);
     }
     else
         freePlay = NO;//	FREEPLAY
-    [game wholeNewGameWithSpritesFrom:[gameView spriteArray]];
+    [game wholeNewGameWithSprites:[gameView spriteArray]];
 
 //
-    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
+    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",(int)[game score]];
     [scoreTextField setNeedsDisplay:YES];
-    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
+    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",(int)[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
 //
     
@@ -595,7 +594,7 @@ typedef void (^Block)(void);
     {
         if ([game score] > [gameScores[i] intValue])
         {
-            hiScorePanelScoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
+            hiScorePanelScoreTextField.stringValue = [NSString stringWithFormat:@"%d",(int)[game score]];
             [gameWindow beginSheet:hiScorePanel completionHandler:nil];
             return;
         }
@@ -667,7 +666,7 @@ typedef void (^Block)(void);
 {
     [self checkHiScores];
     
-    [game wholeNewGameWithSpritesFrom:[gameView spriteArray]];
+    [game wholeNewGameWithSprites:[gameView spriteArray]];
     [gameView setLegend:titleImage];
     [easyGameButton setEnabled:YES];
     [hardGameButton setEnabled:YES];
@@ -808,7 +807,7 @@ typedef void (^Block)(void);
         [[game gemAt:chx1:chy1] setVelocity:0:gemMoveSpeed:gemMoveSteps];
         [[game gemAt:chx2:chy2] setVelocity:0:-gemMoveSpeed:gemMoveSteps];
     }
-    [game swap:chx1:chy1 and:chx2:chy2];
+    [game swap:chx1:chy1 :chx2:chy2];
     gameState = GAMESTATE_SWAPPING;
     __weak typeof(self) weakSelf = self;
     [self startAnimation:^{ [weakSelf testForThrees]; }];
@@ -818,12 +817,12 @@ typedef void (^Block)(void);
 - (void)testForThrees
 {
     BOOL anyThrees;
-    int oldScore = [game score];
+    int oldScore = (int)[game score];
     //NSLog(@"testForThrees");
     anyThrees = ([game testForThreeAt:chx1:chy1])|([game testForThreeAt:chx2:chy2]);
-    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
+    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",(int)[game score]];
     [scoreTextField setNeedsDisplay:YES];
-    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
+    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",(int)[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
     if (anyThrees) {
@@ -840,7 +839,7 @@ typedef void (^Block)(void);
     
     //NSLog(@"removeThreesAndReplaceGems");
     // deal with fading
-    [game removeFadedGemsAndReorganiseWithSpritesFrom:[gameView spriteArray]];
+    [game removeFadedGemsAndReorganiseWithSprites:[gameView spriteArray]];
     
     __weak typeof(self) weakSelf = self;
     [self startAnimation:^{ [weakSelf testForThreesAgain];}];	// gems fall down
@@ -849,12 +848,12 @@ typedef void (^Block)(void);
 - (void)testForThreesAgain
 {
     BOOL anyThrees;
-    int oldScore = [game score];
+    int oldScore = (int)[game score];
     //NSLog(@"testForThreesAgain");
     anyThrees = [game checkBoardForThrees];
-    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",[game score]];
+    scoreTextField.stringValue = [NSString stringWithFormat:@"%d",(int)[game score]];
     [scoreTextField setNeedsDisplay:YES];
-    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",[game bonusMultiplier]];
+    bonusTextField.stringValue = [NSString stringWithFormat:@"x%d",(int)[game bonusMultiplier]];
     [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
     if (anyThrees) {
@@ -885,7 +884,7 @@ typedef void (^Block)(void);
         [[game gemAt:chx1:chy1] setVelocity:0:4:12];
         [[game gemAt:chx2:chy2] setVelocity:0:-4:12];
     }
-    [game swap:chx1:chy1 and:chx2:chy2];
+    [game swap:chx1:chy1 :chx2:chy2];
     gameState = GAMESTATE_SWAPPING;
     __weak typeof(self) weakSelf = self;
     [self startAnimation:^{ [weakSelf waitForFirstClick];}];

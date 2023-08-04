@@ -1,5 +1,5 @@
 //
-//  Xem.swift
+//  Gem.swift
 //  JewelToy
 //
 //  Created by david on 8/3/23.
@@ -22,9 +22,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import AppKit
 
+/// there are 7 kinds of gems
+let NUMGEM = 7
+
+/// game board is 8 wide
+let NUMX = 8
+
+/// game board is 8 tall
+let NUMY = 8
+
+/// gems are DIMxDIM resolution independent pixels
+let DIM = 48
+
 class Xem {
     enum GemState {
-        case unknown
         case resting
         case fading
         case falling
@@ -34,11 +45,11 @@ class Xem {
         case shivering
     }
     static let Z = -0.25
-    var state:GemState = .unknown
+    var state:GemState = .resting
     let ERUPT_DELAY = 45
     let FADE_STEPS = 8.0
     let GRAVITY = 1.46
-    let dim = 48.0
+    let dim = CGFloat(DIM)
     let	tink = NSSound(named: "tink")!
     let	sploink = NSSound(named: "sploink")!
     var mute = false
@@ -124,12 +135,8 @@ class Xem {
         }
     }
 
-    func noop(){
-    }
-
     func animate() -> Int {
         switch state {
-        case .unknown: noop()
         case .resting: restStep()
         case .fading: fadeStep()
         case .falling: fallStep()
@@ -235,6 +242,9 @@ class Xem {
 
     @objc public override init() {
         g = Xem()
+    }
+    init(xem:Xem) {
+        g = xem
     }
     @objc public init(_ n:Int, sprite:Sprite) {
         g = Xem(n, sprite:sprite.s)

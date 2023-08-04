@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #import "GameView.h"
 #import "GameController.h"
-#import "Game.h"
 
 #import "JewelToy-Swift.h"
 
@@ -314,22 +313,12 @@ static NSString *UTI(NSString *path){
         //
         // MIKE WESSLER'S Scorebubbles
         //
-        int b;
         //
         // needsUpdate added so setNeedsDisplay gets called once at most
         //
-        BOOL needsUpdate = FALSE;
+        BOOL needsUpdate = [game scoreBubblesAnimate];
         //
         // animate bubbles, if any
-        for (b=0; b<[game scoreBubbles].count; b++) {
-            ScoreBubble *sb= [game scoreBubbles][b];
-            int more = (int)[sb animate];
-            needsUpdate = TRUE;
-            if (!more) {
-                [[game scoreBubbles] removeObjectAtIndex:b];
-                b--;
-            }
-        }
         //
         ////
         
@@ -505,10 +494,7 @@ static NSString *UTI(NSString *path){
         //
         // MW - Scorebubbles
         //
-        for (i=0; i<[game scoreBubbles].count; i++) {
-            ScoreBubble *sb= [game scoreBubbles][i];
-            [sb drawSprite];
-        }
+        [game scoreBubblesDraw];
         //
         ////
     }

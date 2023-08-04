@@ -83,14 +83,13 @@ import AppKit
         if meter == 1 {
           isRunning = false
           runOverBlock()
-          runOverBlock = {}
           return
         }
         decrementMeter(decrement)
         if meter == 0 && decrement != 0 {
             isRunning = false
             runOutBlock()
-            runOutBlock = {}
+            runOutBlock = {}    // if the game ends, we don't keep running the game end animation.
         }
       }
     }
