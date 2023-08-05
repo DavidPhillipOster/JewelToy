@@ -18,7 +18,7 @@ import AppKit
     var game:Xame?
     var hiScoreLegend = NSAttributedString()
     var hiScoreNumbers:[NSNumber] = []
-    var hiScoreNames:[String] = []
+    var hiScoreNames:[NSString] = []
     @objc public var muted = false
     @objc public var paused = false {
       didSet {
@@ -234,7 +234,7 @@ import AppKit
         }
     }
 
-    @objc public func showHighScores(_ scores:[NSNumber], andNames names:[String]) {
+    @objc public func showHighScores(_ scores:[NSNumber], andNames names:[NSString]) {
         hiScoreNumbers = scores
         hiScoreNames = names
         showHighScores = true
