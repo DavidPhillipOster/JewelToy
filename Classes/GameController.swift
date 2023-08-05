@@ -4,6 +4,21 @@
 //
 //  Created by david on 8/4/23.
 //
+/*
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+----====----====----====----====----====----====----====----====----====---- */
 
 import AppKit
 
@@ -20,7 +35,7 @@ enum GameState {
   case finishedFraculating
 }
 
-@objc public class JameController : NSObject {
+class GameController : NSObject {
     @objc @IBOutlet var  aboutPanel:NSPanel?
     @objc @IBOutlet var  prefsPanel:NSPanel?
     @objc @IBOutlet var  gameView:GameView?
@@ -85,7 +100,7 @@ enum GameState {
     let noMoreMovesString:NSString = NSLocalizedString("NoMoreMovesHTML", comment: "") as NSString
     let jeweltoyStartString:NSString = NSLocalizedString("JewelToyStartHTML", comment: "") as NSString
     let gameOverString:NSString = NSLocalizedString("GameOverHTML", comment: "") as NSString
-    let game = Xame()
+    let game = Game()
     var paused = false
     var timer:Timer?
     let TIMER_INTERVAL = 0.04
@@ -112,12 +127,12 @@ enum GameState {
         }
     }
 
-    public override func awakeFromNib() {
+    override func awakeFromNib() {
         super.awakeFromNib()
         gameView?.game = game
     }
 
-    public func windowWillClose(_ note:NSNotification) {
+    @objc func windowWillClose(_ note:NSNotification) {
         if let obj = note.object  {
             if aboutPanel?.isEqual(obj) ?? false {
                 aboutPanel = nil
@@ -125,7 +140,7 @@ enum GameState {
                 if let prefsAlternateGraphicsButton = prefsAlternateGraphicsButton {
                     useAlternateGraphics = prefsAlternateGraphicsButton.state == .on
                     UserDefaults.standard.set(useAlternateGraphics, forKey: "useAlternateGraphics")
-                    UserDefaults.standard.set(useImportedGraphics, forKey:"useImportedGraphics")
+                    UserDefaults.standard.set(useImportedGraphics && useAlternateGraphics, forKey:"useImportedGraphics")
                 }
                 if let prefsCustomBackgroundCheckbox = prefsCustomBackgroundCheckbox {
                     useCustomBackgrounds = prefsCustomBackgroundCheckbox.state == .on
@@ -137,9 +152,11 @@ enum GameState {
                 }
                 if let gameView = gameView {
                     gameView.graphicSetUp()
-                    gameView.newBackground()
-                    game.setSprites(gameView.gemSpriteArray)
-                    gameView.needsDisplay = true
+                    gameView.updateBackground()
+                    game.setSprites(gameView.spriteArray)
+                    if gameState != .gameOver {
+                        gameView.needsDisplay = true
+                    }
                 }
                 prefsPanel = nil
             } else if gameWindow?.isEqual(obj) ?? false {
@@ -166,10 +183,61 @@ enum GameState {
     }
 
     @IBAction func prefsGraphicDropAction(_ sender: Any?) {
+        if let importedImage = prefsAlternateGraphicsImageView?.image {
+            var cropR = CGRect(x: 0, y: 0, width: importedImage.size.width/CGFloat(NUMGEM), height: importedImage.size.height)
+            let gemR = CGRect(x: 0, y: 0, width: DIM, height: DIM)
+            for i in 0..<NUMGEM {
+                let gemImage = NSImage(size: gemR.size)
+                let key = "tiffGemImage\(i)"
+                cropR.origin.x = CGFloat(i) * importedImage.size.width/CGFloat(NUMGEM)
+                gemImage.lockFocus()
+                NSColor.clear.set()
+                NSBezierPath(rect:gemR).fill()
+                importedImage.draw(in: gemR, from: cropR, operation: .sourceOver, fraction: 1)
+                gemImage.unlockFocus()
+                UserDefaults.standard.set(gemImage.tiffRepresentation, forKey: key)
+                if 0 == i { iv1?.image = gemImage }
+                if 1 == i { iv2?.image = gemImage }
+                if 2 == i { iv3?.image = gemImage }
+                if 3 == i { iv4?.image = gemImage }
+                if 4 == i { iv5?.image = gemImage }
+                if 5 == i { iv6?.image = gemImage }
+                if 6 == i {
+                    iv7?.image = gemImage
+                }
+            }
+            useImportedGraphics = true
+        }
     }
+
     @IBAction func prefsCustomBackgroundCheckboxAction(_ sender: Any?) {
+        if prefsCustomBackgroundCheckbox?.isEqual(sender) ?? false {
+            prefsSelectFolderButton?.isEnabled = prefsCustomBackgroundCheckbox?.state == .on
+            prefsCustomBackgroundFolderTextField?.isEnabled = prefsCustomBackgroundCheckbox?.state == .on
+        }
     }
+
     @IBAction func prefsSelectFolderButtonAction(_ sender: Any?) {
+        let op = NSOpenPanel()
+        op.canChooseDirectories = true
+        op.canChooseFiles = false
+        op.allowsMultipleSelection = false
+        let urlS = prefsCustomBackgroundFolderTextField?.stringValue
+        if let urlS = urlS, !urlS.isEmpty {
+            op.directoryURL = URL(fileURLWithPath: urlS)
+        }
+        op.beginSheetModal(for: prefsPanel!) { response in
+            if response == .OK {
+                var urlS = op.urls.first?.path ?? ""
+                if !urlS.isEmpty {
+                    let homeUrlS = NSHomeDirectory()
+                    if urlS.hasPrefix(homeUrlS) {
+                        urlS = "~" + urlS.suffix(from: homeUrlS.endIndex)
+                    }
+                    self.prefsCustomBackgroundFolderTextField?.stringValue = urlS
+                }
+            }
+        }
     }
 
 
@@ -241,9 +309,9 @@ enum GameState {
             freePlay = false
         }
         if let gameView = gameView {
-            game.wholeNewGame(sprites: gameView.gemSpriteArray)
+            game.wholeNewGame(sprites: gameView.spriteArray)
             scoreTextField?.stringValue = "\(game.score)"
-            bonusTextField?.stringValue = "\(game.bonusMultiplier)"
+            bonusTextField?.stringValue = "x\(game.bonusMultiplier)"
             game.muted = muted
             gameView.game = game
             gameView.legendSprite = nil
@@ -280,7 +348,7 @@ enum GameState {
 
             let score = hiScorePanelScoreTextField.intValue
             let name = hiScorePanelNameTextField.stringValue as NSString
-            gameWindow?.endSheet(hiScorePanel)
+            hiScorePanel.endSheet(hiScorePanel)
             hiScorePanel.close()
             var gameNames = highScores[gameLevel*2] as? [NSString] ?? []
             var gameScores = highScores[gameLevel*2+1] as? [NSNumber] ?? []
@@ -289,7 +357,7 @@ enum GameState {
                     if gameScores[i].intValue < score {
                         gameScores.insert(NSNumber(value: score), at: i)
                         gameScores.remove(at: 10)
-                        gameNames.insert(name, at: 10)
+                        gameNames.insert(name, at: i)
                         gameNames.remove(at:10)
                         highScores[gameLevel*2] = gameNames
                         highScores[gameLevel*2+1] = gameScores
@@ -302,6 +370,7 @@ enum GameState {
             // complain!
             }
             gameState = .gameOver
+            setHighScoreLegend()
             gameView?.showHighScores(gameScores, andNames: gameNames)
             gameView?.setLastMoveDate()
         }
@@ -382,22 +451,9 @@ enum GameState {
     }
 
     @IBAction func showHighScores(_ sender:Any?) {
+        setHighScoreLegend()
         let gameNames = highScores[gameLevel*2] as? [NSString] ?? []
         let gameScores = highScores[gameLevel*2+1] as? [NSNumber] ?? []
-        if gameLevel == 0 {
-            let s = Bundle.main.localizedString(forKey: "EasyHighScoresHTML", value: nil, table: nil) as NSString
-            gameView?.setHTMLHiScoreLegend(s)
-        } else if gameLevel == 1 {
-            let s = Bundle.main.localizedString(forKey: "HardHighScoresHTML", value: nil, table: nil) as NSString
-             gameView?.setHTMLHiScoreLegend(s)
-       } else if gameLevel == 2 {
-            let s = Bundle.main.localizedString(forKey: "ToughHighScoresHTML", value: nil, table: nil) as NSString
-            gameView?.setHTMLHiScoreLegend(s)
-        } else if gameLevel == 3 {
-            let s = Bundle.main.localizedString(forKey: "FreePlayHighScoresHTML", value: nil, table: nil) as NSString
-            gameView?.setHTMLHiScoreLegend(s)
-        }
-
         gameLevel = (gameLevel + 1) % 4
         gameView?.showHighScores(gameScores, andNames: gameNames)
         gameView?.setLastMoveDate()
@@ -430,6 +486,7 @@ enum GameState {
                 }
             }
         }
+        setHighScoreLegend()
         gameView?.showHighScores(gameScores, andNames: gameNames)
     }
 
@@ -480,8 +537,8 @@ enum GameState {
         checkHiScores()
         if let gameView = gameView,
             let titleImage = titleImage {
-            game.wholeNewGame(sprites: gameView.gemSpriteArray)
-            gameView.setLengend(image: titleImage)
+            game.wholeNewGame(sprites: gameView.spriteArray)
+            gameView.setLegend(image: titleImage)
             easyGameButton?.isEnabled = true
             hardGameButton?.isEnabled = true
             toughGameButton?.isEnabled = true
@@ -502,7 +559,7 @@ enum GameState {
                     let gem = game.gemAt(i, j)
                     let r = Int(arc4random_uniform(UInt32(NUMGEM)))
                     gem.gemType = r
-                    gem.sprite = gameView.gemSpriteArray[r]
+                    gem.sprite = gameView.spriteArray[r]
                     gem.setPositionOnBoard(i, j)
                     gem.setPositionOnScreen(i*DIM, (i+j+8)*DIM)
                     gem.fall()
@@ -537,23 +594,24 @@ enum GameState {
         gameState = .awaitingFirstClick
     }
 
-    func receiveClickAt(_ x:Int, _ y:Int) {
+    func receiveClick(_ x:Int, _ y:Int) {
         if paused {
             return
         }
-        if (x < 0)||(x > 383)||(y < 0)||(y > 383) {
+        if (x < 0)||(x > (DIM*NUMX - 1))||(y < 0)||(y > (DIM*NUMY - 1)) {
             return
         }
+        let dim = CGFloat(DIM)
         if gameState == .awaitingFirstClick {
-            chx1 = Int(floor(CGFloat(x) / 48.0))
-            chy1 = Int(floor(CGFloat(y) / 48.0))
+            chx1 = Int(floor(CGFloat(x) / dim))
+            chy1 = Int(floor(CGFloat(y) / dim))
             gameState = .awaitingSecondClick
             gameView?.needsDisplay = true
             return
         }
         if gameState == .awaitingSecondClick {
-            chx2 = Int(floor(CGFloat(x) / 48.0))
-            chy2 = Int(floor(CGFloat(y) / 48.0))
+            chx2 = Int(floor(CGFloat(x) / dim))
+            chy2 = Int(floor(CGFloat(y) / dim))
             if (chx2 != chx1) != (chy2 != chy1) {	// xor!
                 let d = (chx1-chx2)*(chx1-chx2)+(chy1-chy2)*(chy1-chy2)
                 if d == 1 {
@@ -566,8 +624,8 @@ enum GameState {
                 }
             }
         }
-        chx1 = Int(floor(CGFloat(x) / 48.0))
-        chy2 = Int(floor(CGFloat(y) / 48.0))
+        chx1 = Int(floor(CGFloat(x) / dim))
+        chy2 = Int(floor(CGFloat(y) / dim))
         gameState = .awaitingSecondClick
         gameView?.needsDisplay = true
     }
@@ -636,8 +694,8 @@ enum GameState {
     }
 
     func removeThreesAndReplaceGems() {
-        if let gemSpriteArray = gameView?.gemSpriteArray {
-            game.removeFadedGemsAndReorganiseWithSprites(gemSpriteArray)
+        if let spriteArray = gameView?.spriteArray {
+            game.removeFadedGemsAndReorganiseWithSprites(spriteArray)
         }
         startAnimation({ [weak self] in self?.testForThreesAgain() })
     }
@@ -676,13 +734,25 @@ enum GameState {
         startAnimation({ [weak self] in self?.waitForFirstClick() })
     }
 
-    func crossHair1Position() -> CGPoint {
-        return CGPoint(x:chx1*DIM, y:chy1*DIM)
+    func setHighScoreLegend() {
+        if gameLevel == 0 {
+            let s = Bundle.main.localizedString(forKey: "EasyHighScoresHTML", value: nil, table: nil) as NSString
+            gameView?.setHTMLHiScoreLegend(s)
+        } else if gameLevel == 1 {
+            let s = Bundle.main.localizedString(forKey: "HardHighScoresHTML", value: nil, table: nil) as NSString
+             gameView?.setHTMLHiScoreLegend(s)
+       } else if gameLevel == 2 {
+            let s = Bundle.main.localizedString(forKey: "ToughHighScoresHTML", value: nil, table: nil) as NSString
+            gameView?.setHTMLHiScoreLegend(s)
+        } else if gameLevel == 3 {
+            let s = Bundle.main.localizedString(forKey: "FreePlayHighScoresHTML", value: nil, table: nil) as NSString
+            gameView?.setHTMLHiScoreLegend(s)
+        }
     }
 
-    func crossHair2Position() -> CGPoint {
-        return CGPoint(x:chx2*DIM, y:chy2*DIM)
-    }
+    var crossHair1Position: CGPoint { CGPoint(x:chx1*DIM, y:chy1*DIM) }
+
+    var crossHair2Position: CGPoint { CGPoint(x:chx2*DIM, y:chy2*DIM) }
 
 }
 

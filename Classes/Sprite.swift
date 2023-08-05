@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 import AppKit
 
 // TODO: cropRect ignored for now.
-class Xprite {
+class Sprite {
     var image:NSImage
 
     init(image: NSImage, cropRect:CGRect, size:CGSize) {
@@ -45,23 +45,3 @@ class Xprite {
     }
 
 }
-
-@objc public class Sprite : NSObject {
-    let s:Xprite
-    init(xprite:Xprite) {
-      s = xprite
-    }
-    @objc public init(image: NSImage, cropRect:CGRect, size:CGSize) {
-        s = Xprite(image:image, cropRect: cropRect, size: size)
-    }
-    @objc public func blit(x:CGFloat, y:CGFloat, z:CGFloat, alpha:CGFloat = 1.0) {
-        s.blit(x:x, y:y, z:z, alpha: alpha)
-    }
-    @objc public func replace(image: NSImage, cropRect:CGRect) {
-        s.replace(image:image, cropRect: cropRect)
-    }
-    @objc public func substitute(image: NSImage) {
-        s.substitute(image:image)
-    }
-}
-

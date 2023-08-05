@@ -23,18 +23,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 import AppKit
 
 /// a numeric score that bubbles toward the top of the window and fades out.
-class XcoreBubble {
+class ScoreBubble {
     static let Z = -0.30
     static var stringAttributes: [NSAttributedString.Key : Any] =
         [ NSAttributedString.Key.font : NSFont(name:"ArialNarrow-Bold", size:18)!,
           NSAttributedString.Key.foregroundColor : NSColor.black ]
     var _animationCount = Int(0)
     var _screenLocation:CGPoint = CGPoint.zero
-    let _sprite: Xprite
+    let _sprite: Sprite
 
     init(value: Int, at: CGPoint, duration: Int) {
         let s = "\(value)"
-        var strSize = s.size(withAttributes: XcoreBubble.stringAttributes)
+        var strSize = s.size(withAttributes: ScoreBubble.stringAttributes)
         strSize.width = floor(3 + strSize.width)
         strSize.height = floor(1 + strSize.height)
         _screenLocation = at
@@ -43,17 +43,17 @@ class XcoreBubble {
         _animationCount = duration
         let image = NSImage.init(size: strSize)
         image.lockFocus()
-        XcoreBubble.stringAttributes[NSAttributedString.Key.foregroundColor] = NSColor.black
-        s.draw(at: CGPoint(x:2, y:0), withAttributes: XcoreBubble.stringAttributes)
-        XcoreBubble.stringAttributes[NSAttributedString.Key.foregroundColor] = NSColor.yellow
-        s.draw(at: CGPoint(x:1, y:1), withAttributes: XcoreBubble.stringAttributes)
+        ScoreBubble.stringAttributes[NSAttributedString.Key.foregroundColor] = NSColor.black
+        s.draw(at: CGPoint(x:2, y:0), withAttributes: ScoreBubble.stringAttributes)
+        ScoreBubble.stringAttributes[NSAttributedString.Key.foregroundColor] = NSColor.yellow
+        s.draw(at: CGPoint(x:1, y:1), withAttributes: ScoreBubble.stringAttributes)
         image.unlockFocus()
-        _sprite = Xprite(image: image, cropRect: NSMakeRect(0, 0, image.size.width, image.size.height), size: image.size)
+        _sprite = Sprite(image: image, cropRect: NSMakeRect(0, 0, image.size.width, image.size.height), size: image.size)
     }
 
     func drawSprite() {
       let alpha = min(1, CGFloat(_animationCount) / 20)
-      _sprite.blit(x:_screenLocation.x, y:_screenLocation.y, z:XcoreBubble.Z, alpha: alpha)
+      _sprite.blit(x:_screenLocation.x, y:_screenLocation.y, z:ScoreBubble.Z, alpha: alpha)
     }
 
     func animate() -> Int {
@@ -64,18 +64,3 @@ class XcoreBubble {
         return _animationCount
     }
 }
-
-
-@objc public class ScoreBubble : NSObject {
-    let s:XcoreBubble
-    @objc public init(value: Int, at: CGPoint, duration: Int) {
-        s = XcoreBubble(value: value, at: at, duration: duration)
-    }
-    @objc public func drawSprite() {
-        s.drawSprite()
-    }
-    @objc public func animate() -> Int {
-        return s.animate()
-    }
-}
-

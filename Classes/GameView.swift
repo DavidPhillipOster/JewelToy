@@ -4,23 +4,38 @@
 //
 //  Created by david on 8/4/23.
 //
+/*
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+----====----====----====----====----====----====----====----====----====---- */
 
 import AppKit
 
-@objc public class GameView : NSView {
+class GameView : NSView {
 
     @objc @IBOutlet var gameController:GameController!
 
-    @objc public var animating = false
+    var animating = false
     var animationStatus = false
     var backgroundColor:NSColor = .purple
     var dragStartPoint = NSPoint.zero
-    var game:Xame?
+    var game:Game?
     var hiScoreLegend = NSAttributedString()
     var hiScoreNumbers:[NSNumber] = []
     var hiScoreNames:[NSString] = []
-    @objc public var muted = false
-    @objc public var paused = false {
+    var muted = false
+    var paused = false {
       didSet {
         if paused {
             animationStatus = animating
@@ -32,34 +47,34 @@ import AppKit
       }
     }
     var showHighScores = false
-    @objc public var showHint = true
+    var showHint = true
     var scoreScroll = 0
     var ticsSinceLastMove = 0
-    var backgroundSprite:Xprite = GameView.constructSpriteBackground()
-    let crosshairSprite:Xprite = {
+    var backgroundSprite:Sprite = GameView.constructSpriteBackground()
+    let crosshairSprite:Sprite = {
         let crossImage = NSImage(named:"cross")!
-        return Xprite(image: crossImage, cropRect: CGRect(origin: .zero, size: crossImage.size), size: CGSize(width: DIM, height: DIM))
+        return Sprite(image: crossImage, cropRect: CGRect(origin: .zero, size: crossImage.size), size: CGSize(width: DIM, height: DIM))
     }()
-    var legendSprite:Xprite?
-    let movehintSprite:Xprite = {
+    var legendSprite:Sprite?
+    let movehintSprite:Sprite = {
         let movehintImage = NSImage(named:"movehint")!
-        return Xprite(image: movehintImage, cropRect: CGRect(origin: .zero, size: movehintImage.size), size: CGSize(width: DIM, height: DIM))
+        return Sprite(image: movehintImage, cropRect: CGRect(origin: .zero, size: movehintImage.size), size: CGSize(width: DIM, height: DIM))
     }()
-    var gemSpriteArray:[Xprite] = GameView.constructSpriteArray()
+    var spriteArray:[Sprite] = GameView.constructSpriteArray()
 
-    @objc public override init(frame frameRect: NSRect) {
+    @objc override init(frame frameRect: NSRect) {
         super.init(frame:frameRect)
-        setLengend(image: NSImage(named: "title")!)
+        setLegend(image: NSImage(named: "title")!)
     }
 
-    @objc public required init?(coder: NSCoder) {
+    @objc required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setLengend(image: NSImage(named: "title")!)
+        setLegend(image: NSImage(named: "title")!)
     }
 
-    public override var isOpaque:Bool { true }
+    override var isOpaque:Bool { true }
 
-    public override func draw(_ dirtyRect: NSRect) {
+    override func draw(_ dirtyRect: NSRect) {
         backgroundSprite.blit(x: 0, y: 0, z: 0)
         if let game = game {
             if !paused {
@@ -71,7 +86,7 @@ import AppKit
                 game.scoreBubblesDraw()
             }
         }
-        if gameController.gameState == GAMESTATE_AWAITINGSECONDCLICK {
+        if gameController.gameState == .awaitingSecondClick {
             let p = gameController.crossHair1Position
             crosshairSprite.blit(x: p.x, y: p.y, z: -0.5)
         }
@@ -80,7 +95,7 @@ import AppKit
         }
         if let legendSprite = legendSprite {
             if 500 < ticsSinceLastMove {
-                setLengend(image: NSImage(named: "title")!) // show Logo
+                setLegend(image: NSImage(named: "title")!) // show Logo
             }
             legendSprite.blit(x: 0, y: 0, z: -0.75)
         } else if let game = game, 500 < ticsSinceLastMove && showHint {
@@ -89,7 +104,7 @@ import AppKit
     }
 
     /// called from timer
-    @objc public func animate(){
+    func animate(){
         var needsUpdate = game?.scoreBubblesAnimate() ?? false
         if animating {
             if let game = game {
@@ -115,7 +130,7 @@ import AppKit
         }
     }
 
-    class func constructSpriteBackground() -> Xprite {
+    class func constructSpriteBackground() -> Sprite {
         let backgroundImage:NSImage = {
             if let data = UserDefaults.standard.data(forKey: "backgroundTiffData"),
                let background = NSImage(data:data) {
@@ -124,10 +139,10 @@ import AppKit
                 return NSImage(named:"background")!
             }
         }()
-        return Xprite(image: backgroundImage, cropRect: CGRect(origin: .zero, size: backgroundImage.size), size: CGSize(width: DIM*NUMX, height: DIM*NUMY))
+        return Sprite(image: backgroundImage, cropRect: CGRect(origin: .zero, size: backgroundImage.size), size: CGSize(width: DIM*NUMX, height: DIM*NUMY))
     }
 
-    class func constructSpriteArray() -> [Xprite] {
+    class func constructSpriteArray() -> [Sprite] {
         let useAlternateGraphics = UserDefaults.standard.bool(forKey: "useAlternateGraphics")
         let useImportedGraphics = UserDefaults.standard.bool(forKey: "useImportedGraphics")
         var gemImageArray:[NSImage] = []
@@ -137,7 +152,7 @@ import AppKit
             }
         } else if useImportedGraphics {
             for i in 1...NUMGEM {
-              if let data = UserDefaults.standard.data(forKey: "tiffGemImage\(i)"),
+              if let data = UserDefaults.standard.data(forKey: "tiffGemImage\(i-1)"),
                 let gemImage = NSImage(data:data) {
                 gemImageArray.append(gemImage)
               }
@@ -148,52 +163,47 @@ import AppKit
                 gemImageArray.append(NSImage(named:"\(i)gem")!)
             }
         }
-        var sprites:[Xprite] = []
+        var sprites:[Sprite] = []
         for image in gemImageArray {
-            sprites.append(Xprite(image: image, cropRect: CGRect(origin: .zero, size: image.size), size: CGSize(width: DIM, height: DIM)))
+            sprites.append(Sprite(image: image, cropRect: CGRect(origin: .zero, size: image.size), size: CGSize(width: DIM, height: DIM)))
             if sprites.count == NUMGEM { break }
         }
         return sprites
     }
 
-    // was newBackground TODO
     func updateBackground() {
-        gemSpriteArray = GameView.constructSpriteArray()
-        needsDisplay = true
+    // TODO: updateBackground
     }
 
-    @objc public func setHTMLLegend(_ html:NSString) {
+    func setHTMLLegend(_ html:NSString) {
         if let sp = html.utf8String {
             let d = Data(bytes:sp, count: html.length)
             if let attrS = NSAttributedString(html: d, documentAttributes: nil) {
-                setLengend(string: attrS)
+                setLegend(string: attrS)
             }
         }
     }
 
-    @objc public func setLengend(string:NSAttributedString) {
-        setLengend(block:{
+    func setLegend(string:NSAttributedString) {
+        setLegend(block:{
             let size = string.size()
             let legendPoint = CGPoint(x:(CGFloat(DIM*NUMX) - size.width)/2, y:(CGFloat(DIM*NUMY) - size.height)/2)
             string.draw(at: legendPoint)
         })
     }
 
-    @objc public func setLengend(image:NSImage) {
-        setLengend(block:{
+    func setLegend(image:NSImage) {
+        setLegend(block:{
             let legendPoint = CGPoint(x:(CGFloat(DIM*NUMX) - image.size.width)/2, y:(CGFloat(DIM*NUMY) - image.size.height)/2)
             let r = NSMakeRect(0, 0, image.size.width, image.size.height)
             image.draw(at: legendPoint, from: r, operation: .sourceOver, fraction: 1)
         })
     }
 
-    @objc public func setLengendNil() {
-        legendSprite = nil
-    }
     /// do the boilerplate of creating a full-game sprite.
     ///
     /// @param block - drawing functions to draw into the image.
-    func setLengend(block:()->Void) {
+    func setLegend(block:()->Void) {
         let legendImage = NSImage(size: CGSize(width: DIM*NUMX, height: DIM*NUMY))
         let legendR = NSMakeRect(0, 0, legendImage.size.width, legendImage.size.height)
         legendImage.lockFocus()
@@ -201,7 +211,7 @@ import AppKit
         NSBezierPath(rect:legendR).fill()
         block()
         legendImage.unlockFocus()
-        legendSprite = Xprite(image: legendImage, cropRect: legendR, size: legendImage.size)
+        legendSprite = Sprite(image: legendImage, cropRect: legendR, size: legendImage.size)
         ticsSinceLastMove = 0
         showHighScores = false
         animating = false
@@ -209,32 +219,32 @@ import AppKit
     }
 
 
-    public override func mouseDown(with event: NSEvent) {
+    override func mouseDown(with event: NSEvent) {
         let eventLocation = event.locationInWindow
         dragStartPoint = convert(eventLocation, from: nil)
     }
 
-    public override func mouseUp(with event: NSEvent) {
+    override func mouseUp(with event: NSEvent) {
         let eventLocation = event.locationInWindow
         let center = convert(eventLocation, from: nil)
-        if gameController.gameState == GAMESTATE_AWAITINGSECONDCLICK {
-            gameController.receiveClick(at: Int32(center.x), Int32(center.y))
-        } else if gameController.gameState == GAMESTATE_AWAITINGFIRSTCLICK {
-            let chx1 = Int32(floor(dragStartPoint.x / CGFloat(DIM)))
-            let chy1 = Int32(floor(dragStartPoint.y / CGFloat(DIM)))
-            let chx2 = Int32(floor(center.x / CGFloat(DIM)))
-            let chy2 = Int32(floor(center.y / CGFloat(DIM)))
+        if gameController.gameState == .awaitingSecondClick {
+            gameController.receiveClick(Int(center.x), Int(center.y))
+        } else if gameController.gameState == .awaitingFirstClick {
+            let chx1 = Int(floor(dragStartPoint.x / CGFloat(DIM)))
+            let chy1 = Int(floor(dragStartPoint.y / CGFloat(DIM)))
+            let chx2 = Int(floor(center.x / CGFloat(DIM)))
+            let chy2 = Int(floor(center.y / CGFloat(DIM)))
             // only one of x,y changed - valid shove
             if (chx2 != chx1) != (chy2 != chy1) {
-                gameController.receiveClick(at: Int32(dragStartPoint.x), Int32(dragStartPoint.y))
-                gameController.receiveClick(at: Int32(center.x), Int32(center.y))
+                gameController.receiveClick(Int(dragStartPoint.x), Int(dragStartPoint.y))
+                gameController.receiveClick(Int(center.x), Int(center.y))
             } else {
-                gameController.receiveClick(at: Int32(center.x), Int32(center.y))
+                gameController.receiveClick(Int(center.x), Int(center.y))
             }
         }
     }
 
-    @objc public func showHighScores(_ scores:[NSNumber], andNames names:[NSString]) {
+    func showHighScores(_ scores:[NSNumber], andNames names:[NSString]) {
         hiScoreNumbers = scores
         hiScoreNames = names
         showHighScores = true
@@ -243,7 +253,7 @@ import AppKit
         needsDisplay = true
     }
 
-    public func showScores() {
+    func showScores() {
         let legendImage = NSImage(size: CGSize(width: DIM*NUMX, height: DIM*NUMY))
         let legendR = NSMakeRect(0, 0, legendImage.size.width, legendImage.size.height)
         legendImage.lockFocus()
@@ -273,30 +283,19 @@ import AppKit
         }
 
         legendImage.unlockFocus()
-        legendSprite = Xprite(image: legendImage, cropRect: legendR, size: legendImage.size)
+        legendSprite = Sprite(image: legendImage, cropRect: legendR, size: legendImage.size)
         showHighScores = false
     }
-    @objc public func setLastMoveDate() {
+
+    func setLastMoveDate() {
         ticsSinceLastMove = 0
     }
 
-    @objc public func graphicSetUp() {
-    }
-    @objc public func newBackground() {
-        updateBackground()
-    }
-    @objc public func setGame(_ game:Game) {
-        self.game = game.g
-    }
-    @objc public func spriteArray() -> [Sprite] {
-        var a:[Sprite] = []
-        for s in gemSpriteArray {
-            a.append(Sprite(xprite: s))
-        }
-        return a
+    func graphicSetUp() {
+        spriteArray = GameView.constructSpriteArray()
     }
 
-    @objc public func setHTMLHiScoreLegend(_ s:NSString) {
+    func setHTMLHiScoreLegend(_ s:NSString) {
         if let sp = s.utf8String {
             let d = Data(bytes:sp, count: s.length)
             if let attrS = NSAttributedString(html: d, documentAttributes: nil) {

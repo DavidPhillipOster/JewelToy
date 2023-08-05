@@ -265,7 +265,7 @@
             </items>
             <point key="canvasLocation" x="-214" y="-493"/>
         </menu>
-        <customObject id="206" userLabel="GameController" customClass="GameController">
+        <customObject id="206" userLabel="GameController" customClass="GameController" customModule="JewelToy" customModuleProvider="target">
             <connections>
                 <outlet property="abortGameButton" destination="214" id="216"/>
                 <outlet property="abortGameMenuItem" destination="217" id="259"/>

@@ -22,11 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import AppKit
 
-class Xame {
-    var board:[Xem] = {
-        var a:[Xem] = []
+class Game {
+    var board:[Gem] = {
+        var a:[Gem] = []
         for i in 0..<NUMX*NUMY {
-            a.append(Xem())
+            a.append(Gem())
         }
         return a
     }()
@@ -42,7 +42,7 @@ class Xame {
           }
         }
     }
-    var scoreBubbles:[XcoreBubble] = []
+    var scoreBubbles:[ScoreBubble] = []
     var score = 0
     var sx1 = 0
     var sy1 = 0
@@ -50,11 +50,11 @@ class Xame {
     var sy2 = 0
 
     init(){}
-    init(sprites:[Xprite]) {
+    init(sprites:[Sprite]) {
         for i in 0..<NUMX {
             for j in 0..<NUMY {
               let r = randomGemTypeAt(i, j)
-              let gem = Xem(r, sprite: sprites[r])
+              let gem = Gem(r, sprite: sprites[r])
               gem.setPositionOnBoard(i, j)
               gem.setPositionOnScreen(i*DIM, j*DIM)
               gem.shake()
@@ -81,7 +81,7 @@ class Xame {
         return result
     }
 
-    func gemAt(_ x:Int, _ y:Int) -> Xem {
+    func gemAt(_ x:Int, _ y:Int) -> Gem {
         return board[y*NUMY+x]
     }
 
@@ -93,7 +93,7 @@ class Xame {
         bonusMultiplier += 1
     }
 
-    func setSprites(_ sprites:[Xprite]){
+    func setSprites(_ sprites:[Sprite]){
         for i in 0..<NUMX {
             for j in 0..<NUMY {
                 board[j*NUMY+i].sprite = sprites[gemAt(i,j).gemType]
@@ -101,9 +101,9 @@ class Xame {
         }
     }
 
-    func removeFadedGemsAndReorganiseWithSprites(_ sprites:[Xprite]) {
+    func removeFadedGemsAndReorganiseWithSprites(_ sprites:[Sprite]) {
         for i in 0..<NUMX {
-            var column:[Xem] = []
+            var column:[Gem] = []
             var y = 0
             var fades = 0
             for j in 0..<NUMY {
@@ -300,7 +300,7 @@ class Xame {
         }
         if 0 < bonus {
             let p = CGPoint(x:scorebubble_x*CGFloat(DIM)+CGFloat(DIM/2), y:scorebubble_y*CGFloat(DIM)+CGFloat(DIM/2))
-            scoreBubbles.append(XcoreBubble(value: bonus*bonusMultiplier, at: p, duration: 40))
+            scoreBubbles.append(ScoreBubble(value: bonus*bonusMultiplier, at: p, duration: 40))
         }
         score += bonus * bonusMultiplier
         return result
@@ -399,7 +399,7 @@ class Xame {
         }
     }
 
-    func wholeNewGame(sprites:[Xprite]) {
+    func wholeNewGame(sprites:[Sprite]) {
         for i in 0..<NUMX {
             for j in 0..<NUMY {
                 let r = randomGemTypeAt(i, j)
@@ -416,94 +416,3 @@ class Xame {
         bonusMultiplier = 1
     }
 }
-
-@objc public class Game : NSObject {
-    let g = Xame()
-
-    @objc public var bonusMultiplier:Int {
-        get{ g.bonusMultiplier }
-        set(a){ g.bonusMultiplier = a}
-    }
-
-    @objc public func boardHasMoves() -> Bool {
-        return g.boardHasMoves()
-    }
-
-    @objc public func collectGemsFaded() -> CGFloat {
-        return g.collectGemsFaded()
-    }
-
-    @objc public func increaseBonusMultiplier() {
-        g.increaseBonusMultiplier()
-    }
-
-    @objc public var muted:Bool {
-        get{ g.muted }
-        set(a){ g.muted = a}
-     }
-    @objc public var score:Int {
-        get{ g.score }
-        set(a){ g.score = a}
-    }
-    @objc public func checkBoardForThrees() -> Bool {
-        return g.checkBoardForThrees()
-    }
-
-    @objc public func gemAt(_ x:Int, _ y:Int) -> Gem {
-        return Gem(xem:g.gemAt(x, y))
-    }
-
-    @objc public func hintPoint() -> CGPoint {
-        return g.hintPoint()
-    }
-
-    @objc public func erupt() {
-        g.erupt()
-    }
-    @objc public func explodeGameOver() {
-        g.explodeGameOver()
-    }
-    @objc public func shake() {
-        g.shake()
-    }
-    @objc public func removeFadedGemsAndReorganiseWithSprites(_ sprites:[Sprite]){
-        var xprites:[Xprite] = []
-        for sprite in sprites {
-            xprites.append(sprite.s)
-        }
-        g.removeFadedGemsAndReorganiseWithSprites(xprites)
-    }
-
-    @objc public func scoreBubblesAnimate() -> Bool {
-        return g.scoreBubblesAnimate()
-    }
-
-    @objc public func scoreBubblesDraw() {
-        g.scoreBubblesDraw()
-    }
-
-    @objc public func setSprites(_ sprites:[Sprite]){
-        var xprites:[Xprite] = []
-        for sprite in sprites {
-            xprites.append(sprite.s)
-        }
-        g.setSprites(xprites)
-    }
-
-    @objc public func swap(_ x1:Int, _ y1:Int, _ x2:Int, _ y2:Int) {
-        g.swap(x1, y1, x2, y2)
-    }
-
-    @objc public func testForThreeAt(_ x:Int, _ y:Int) -> Bool {
-        return g.testForThreeAt(x, y)
-    }
-
-    @objc public func wholeNewGame(sprites:[Sprite]) {
-        var xprites:[Xprite] = []
-        for sprite in sprites {
-            xprites.append(sprite.s)
-        }
-        g.wholeNewGame(sprites:xprites)
-    }
-}
-

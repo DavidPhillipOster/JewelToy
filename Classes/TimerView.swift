@@ -22,11 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import AppKit
 
-@objc public class TimerView : NSView {
+class TimerView : NSView {
     var aTimer:Timer?
     var meter = 0.5
-    @objc public var decrement = 0.0
-    @objc public var timer = 0.0
+    var decrement = 0.0
+    var timer = 0.0
     let color1	= NSColor.red
     let color2	= NSColor.yellow
     let colorOK	= NSColor.green
@@ -36,14 +36,14 @@ import AppKit
     var runOutBlock: () -> Void = {}
     var runOverBlock: () -> Void = {}
 
-    @objc public var paused: Bool {
+    var paused: Bool {
         get { !isRunning }
         set(b){ isRunning = !b }
     }
 
-    public override var isOpaque:Bool { true }
+    override var isOpaque:Bool { true }
 
-    public override func draw(_ dirtyRect: NSRect) {
+    override func draw(_ dirtyRect: NSRect) {
         backColor.setFill()
         NSBezierPath(rect:bounds).fill()
         let r = NSMakeRect(4, 4, meter * (bounds.size.width - 8), bounds.size.height - 8)
@@ -55,19 +55,19 @@ import AppKit
         NSBezierPath(rect:r).fill()
     }
 
-    @objc public func incrementMeter(_ value: Double ) {
+    func incrementMeter(_ value: Double ) {
         meter += value
         if 1 < meter { meter = 1 }
         self.needsDisplay = true
     }
 
-    @objc public func decrementMeter(_ value: Double ) {
+    func decrementMeter(_ value: Double ) {
         meter -= value
         if meter < 0 { meter = 0 }
         self.needsDisplay = true
     }
 
-    @objc public func setTimerRunningEvery(_ every:Double, decrement:Double, whenRunOut:@escaping () -> Void , whenRunOver:@escaping () -> Void) {
+    func setTimerRunningEvery(_ every:Double, decrement:Double, whenRunOut:@escaping () -> Void , whenRunOver:@escaping () -> Void) {
         self.decrement = decrement
         meter = 0.5
         runOutBlock = whenRunOut

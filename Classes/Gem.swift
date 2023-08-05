@@ -34,7 +34,7 @@ let NUMY = 8
 /// gems are DIMxDIM resolution independent pixels
 let DIM = 48
 
-class Xem {
+class Gem {
     enum GemState {
         case resting
         case fading
@@ -59,12 +59,12 @@ class Xem {
     var waitForFall = 0
     var vx = 0.0
     var vy = 0.0
-    var sprite:Xprite?
+    var sprite:Sprite?
     var positionOnBoard = CGPoint.zero
     var positionOnScreen = CGPoint.zero
 
     init(){}
-    init(_ n:Int, sprite:Xprite) {
+    init(_ n:Int, sprite:Sprite) {
         gemType = n
         self.sprite = sprite
     }
@@ -198,96 +198,10 @@ class Xem {
 
     func drawSprite(){
         if .fading == state {
-            sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Xem.Z, alpha: CGFloat((Double(animationCounter) / FADE_STEPS)))
+            sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Gem.Z, alpha: CGFloat((Double(animationCounter) / FADE_STEPS)))
         } else {
-            sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Xem.Z)
+            sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Gem.Z)
         }
-    }
-}
-
-
-@objc public class Gem : NSObject {
-    let g:Xem
-    @objc public var isFading: Bool { g.isFading }
-    @objc public var gemType:Int {
-        get { g.gemType }
-        set(n){ g.gemType = n }
-    }
-    @objc public var animationCounter:Int {
-        get { g.animationCounter }
-        set(n) { g.animationCounter = n }
-    }
-    @objc public var mute: Bool {
-        get { g.mute }
-        set(n) { g.mute = n }
-    }
-    @objc public var positionOnScreen: CGPoint { g.positionOnScreen }
-    @objc public var sprite:Sprite? {
-        get {
-            if let s = g.sprite {
-                return Sprite(xprite:s)
-            } else {
-                return nil
-            }
-
-        }
-        set(s){
-            if let sprite = s?.s {
-                g.sprite = sprite
-            } else {
-                g.sprite = nil
-            }
-        }
-    }
-
-    @objc public override init() {
-        g = Xem()
-    }
-    init(xem:Xem) {
-        g = xem
-    }
-    @objc public init(_ n:Int, sprite:Sprite) {
-        g = Xem(n, sprite:sprite.s)
-    }
-
-    @objc public func setVelocity(_ x:Int, _ y:Int, _ steps:Int) {
-        g.setVelocity(x, y, steps)
-    }
-
-    @objc public func drawSprite() {
-        g.drawSprite()
-    }
-
-    @objc public func animate() -> Int {
-        return g.animate()
-    }
-
-    @objc public func erupt(){
-        g.erupt()
-    }
-
-    @objc public func fall(){
-        g.fall()
-    }
-
-    @objc public func fade() {
-        g.fade()
-    }
-
-    @objc public func shake() {
-        g.shake()
-    }
-
-    @objc public func shiver() {
-        g.shiver()
-    }
-
-    @objc public func setPositionOnBoard(_ x:Int, _ y:Int){
-        g.setPositionOnBoard(x, y)
-    }
-
-    @objc public func setPositionOnScreen(_ x:Int, _ y:Int){
-        g.setPositionOnScreen(x, y)
     }
 }
 
