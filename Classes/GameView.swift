@@ -28,6 +28,7 @@ import AppKit
         } else {
             animating = animationStatus
         }
+        needsDisplay = true
       }
     }
     var showHighScores = false
