@@ -21,6 +21,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ----====----====----====----====----====----====----====----====----====---- */
 
 import AppKit
+import UniformTypeIdentifiers
+
+func IsImageFormat(_ url:URL?) -> Bool {
+    if let url = url  {
+        if #available(macOS 11.0, *) {
+            return nil != UTType(filenameExtension:url.pathExtension, conformingTo:UTType.image)
+        }
+        let pathExtension = url.pathExtension as CFString
+        let uti = UTTypeCreatePreferredIdentifierForTag(
+            kUTTagClassFilenameExtension,
+            pathExtension,
+            nil)
+        if let value = uti?.takeRetainedValue() {
+            return UTTypeConformsTo(value, kUTTypeImage)
+        }
+    }
+    return false
+}
+
 
 class GameView : NSView {
 
@@ -29,6 +48,7 @@ class GameView : NSView {
     var animating = false
     var animationStatus = false
     var backgroundColor:NSColor = .purple
+    var backgroundImagePathArray:[String] = []
     var dragStartPoint = NSPoint.zero
     var game:Game?
     var hiScoreLegend = NSAttributedString()
@@ -50,7 +70,7 @@ class GameView : NSView {
     var showHint = true
     var scoreScroll = 0
     var ticsSinceLastMove = 0
-    var backgroundSprite:Sprite = GameView.constructSpriteBackground()
+    var backgroundSprite:Sprite?
     let crosshairSprite:Sprite = {
         let crossImage = NSImage(named:"cross")!
         return Sprite(image: crossImage, cropRect: CGRect(origin: .zero, size: crossImage.size), size: CGSize(width: DIM, height: DIM))
@@ -61,21 +81,26 @@ class GameView : NSView {
         return Sprite(image: movehintImage, cropRect: CGRect(origin: .zero, size: movehintImage.size), size: CGSize(width: DIM, height: DIM))
     }()
     var spriteArray:[Sprite] = GameView.constructSpriteArray()
+    var useCustomBackgrounds:Bool {
+        return UserDefaults.standard.bool(forKey: "useCustomBackgrounds")
+    }
 
     @objc override init(frame frameRect: NSRect) {
         super.init(frame:frameRect)
         setLegend(image: NSImage(named: "title")!)
+        backgroundSprite = constructSpriteBackground()
     }
 
     @objc required init?(coder: NSCoder) {
         super.init(coder: coder)
         setLegend(image: NSImage(named: "title")!)
+        backgroundSprite = constructSpriteBackground()
     }
 
     override var isOpaque:Bool { true }
 
     override func draw(_ dirtyRect: NSRect) {
-        backgroundSprite.blit(x: 0, y: 0, z: 0)
+        backgroundSprite?.blit(x: 0, y: 0, z: 0)
         if let game = game {
             if !paused {
                 for i in 0..<NUMX {
@@ -130,14 +155,40 @@ class GameView : NSView {
         }
     }
 
-    class func constructSpriteBackground() -> Sprite {
+    func constructSpriteBackground() -> Sprite {
         let backgroundImage:NSImage = {
-            if let data = UserDefaults.standard.data(forKey: "backgroundTiffData"),
-               let background = NSImage(data:data) {
+            let customBackgroundFolderPath = UserDefaults.standard.string(forKey: "customBackgroundFolderPath") as? NSString
+            if useCustomBackgrounds && 0 != (customBackgroundFolderPath?.length ?? 0)  {
+                let backgroundFolderPath = customBackgroundFolderPath!.resolvingSymlinksInPath
+                if backgroundImagePathArray.isEmpty {
+                    let startTime = NSDate.timeIntervalSinceReferenceDate
+                    do {
+                        let direct = try FileManager.default.contentsOfDirectory(atPath: backgroundFolderPath)
+                        for filename in direct {
+
+                            if let url = URL(string:backgroundFolderPath)?.appendingPathComponent(filename),
+                                IsImageFormat(url) {
+                                backgroundImagePathArray.append(filename)
+                            }
+                            // if we can't enumerate in five seconds, give up.
+                            if 5 < NSDate.timeIntervalSinceReferenceDate - startTime {
+                                break
+                            }
+                        }
+                    } catch {
+                    }
+                }
+                if let filename = backgroundImagePathArray.first,
+                    let background = NSImage(contentsOf:URL(fileURLWithPath:backgroundFolderPath).appendingPathComponent(filename)) {
+                    backgroundImagePathArray.remove(at: 0)
+                    backgroundImagePathArray.append(filename)
+                    return background
+                }
+            } else if let data = UserDefaults.standard.data(forKey: "backgroundTiffData"),
+                      let background = NSImage(data:data) {
                 return background
-            } else {
-                return NSImage(named:"background")!
             }
+            return NSImage(named:"background")!
         }()
         return Sprite(image: backgroundImage, cropRect: CGRect(origin: .zero, size: backgroundImage.size), size: CGSize(width: DIM*NUMX, height: DIM*NUMY))
     }
@@ -172,7 +223,7 @@ class GameView : NSView {
     }
 
     func updateBackground() {
-    // TODO: updateBackground
+      backgroundSprite = constructSpriteBackground()
     }
 
     func setHTMLLegend(_ html:NSString) {

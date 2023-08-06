@@ -235,6 +235,7 @@ class GameController : NSObject {
                         urlS = "~" + urlS.suffix(from: homeUrlS.endIndex)
                     }
                     self.prefsCustomBackgroundFolderTextField?.stringValue = urlS
+                    self.customBackgroundFolderPath = urlS
                 }
             }
         }
