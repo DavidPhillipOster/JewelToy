@@ -73,9 +73,10 @@ class TimerView : NSView {
         runOutBlock = whenRunOut
         runOverBlock = whenRunOver
         aTimer?.invalidate()
-        aTimer = Timer.scheduledTimer(withTimeInterval: every, repeats: true, block: { [weak self] bTimer in
+        aTimer = Timer(timeInterval: every, repeats: true, block: { [weak self] bTimer in
             self?.runTimer()
         })
+        RunLoop.current.add(aTimer!, forMode: .common)
         isRunning = true
     }
 

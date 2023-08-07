@@ -517,9 +517,10 @@ class GameController : NSObject {
     func startAnimation(_ andThen:@escaping () -> Void) {
         animationTimerLock.lock()
         if nil == timer {
-            timer = Timer.scheduledTimer(withTimeInterval: TIMER_INTERVAL, repeats: true, block: { [weak self] timer in
+            timer = Timer(timeInterval: TIMER_INTERVAL, repeats: true, block: { [weak self] timer in
                 self?.gameView?.animate()
             })
+            RunLoop.current.add(timer!, forMode: .common)
         }
         whatNext = andThen
         gameView?.animating = true
@@ -626,7 +627,7 @@ class GameController : NSObject {
             }
         }
         chx1 = Int(floor(CGFloat(x) / dim))
-        chy2 = Int(floor(CGFloat(y) / dim))
+        chy1 = Int(floor(CGFloat(y) / dim))
         gameState = .awaitingSecondClick
         gameView?.needsDisplay = true
     }
