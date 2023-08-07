@@ -87,12 +87,15 @@ class GameView : NSView {
 
     @objc override init(frame frameRect: NSRect) {
         super.init(frame:frameRect)
-        setLegend(image: NSImage(named: "title")!)
-        backgroundSprite = constructSpriteBackground()
+        initGameWindow()
     }
 
     @objc required init?(coder: NSCoder) {
         super.init(coder: coder)
+        initGameWindow()
+    }
+
+    func initGameWindow(){
         setLegend(image: NSImage(named: "title")!)
         backgroundSprite = constructSpriteBackground()
     }

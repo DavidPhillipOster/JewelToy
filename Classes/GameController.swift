@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 import AppKit
 
 enum GameState {
+  case awaitingGame
   case gameOver
   case awaitingFirstClick
   case awaitingSecondClick
@@ -88,7 +89,7 @@ class GameController : NSObject {
     var gameSpeed = CGFloat(1)
     var gameTime = 3600.0
     var highScores:[[Any]] = []
-    var gameState:GameState = .awaitingFirstClick
+    var gameState:GameState = .awaitingGame
 
     let gemMoveSpeed = 6
     let gemMoveSize = DIM
@@ -109,6 +110,7 @@ class GameController : NSObject {
     var useImportedGraphics = UserDefaults.standard.bool(forKey: "useImportedGraphics")
     var useCustomBackgrounds = UserDefaults.standard.bool(forKey: "useCustomBackgrounds")
     var customBackgroundFolderPath:String?
+    var wasPausedDuringPrefs = false
     var whatNext: () -> Void = {}
 
     override init(){
@@ -154,11 +156,14 @@ class GameController : NSObject {
                     gameView.graphicSetUp()
                     gameView.updateBackground()
                     game.setSprites(gameView.spriteArray)
-                    if gameState != .gameOver {
+                    if !(gameState == .awaitingGame || gameState == .gameOver) {
                         gameView.needsDisplay = true
                     }
                 }
                 prefsPanel = nil
+                if wasPausedDuringPrefs {
+                    togglePauseMode(nil)
+                }
             } else if gameWindow?.isEqual(obj) ?? false {
                 NSApp.terminate(self)
             }
@@ -448,7 +453,11 @@ class GameController : NSObject {
                 }
             }
         }
-        prefsPanel?.makeKeyAndOrderFront(self)
+        prefsPanel!.makeKeyAndOrderFront(self)
+        wasPausedDuringPrefs = !paused && !(gameState == .awaitingGame || gameState == .gameOver)
+        if wasPausedDuringPrefs {
+            togglePauseMode(nil)
+        }
     }
 
     @IBAction func showHighScores(_ sender:Any?) {
@@ -473,7 +482,7 @@ class GameController : NSObject {
         abortGame = true
         gameView?.setHTMLLegend(gameOverString)
         game.shake()
-        startAnimation({ [weak self] in self?.waitForFirstClick() })
+        startAnimation({ [weak self] in self?.waitForNewGame() })
     }
 
     func checkHiScores() {
@@ -536,6 +545,7 @@ class GameController : NSObject {
     }
 
     func waitForNewGame() {
+        gameState = .awaitingGame
         checkHiScores()
         if let gameView = gameView,
             let titleImage = titleImage {
@@ -577,6 +587,7 @@ class GameController : NSObject {
         timerView?.paused = false
         if abortGame {
             timerView?.timer = 0.5
+            timerView?.decrement = 0.0
             gameState = .gameOver
             game.explodeGameOver()
             startAnimation({ [weak self] in self?.waitForNewGame() })
