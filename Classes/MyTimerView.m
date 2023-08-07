@@ -121,11 +121,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     {
         [timer invalidate];
     }
-    timer = [NSTimer	scheduledTimerWithTimeInterval:timeInterval
+    timer = [NSTimer timerWithTimeInterval:timeInterval
                 target:self
                 selector:@selector(runTimer)
                 userInfo:self
                 repeats:YES];
+    [NSRunLoop.currentRunLoop addTimer:timer forMode:NSRunLoopCommonModes];
     isRunning = YES;
 }
 

@@ -606,12 +606,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {
     [animationTimerLock lock];
     //
-    if (!timer)
-        timer = [[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL
+    if (!timer) {
+        timer = [[NSTimer timerWithTimeInterval:TIMER_INTERVAL
                                                   target:gameView
                                                 selector:@selector(animate)
                                                 userInfo:self
                                                  repeats:YES] retain];
+        [NSRunLoop.currentRunLoop addTimer:timer forMode:NSRunLoopCommonModes];
+    }
     //
     whatNext = andThenSelector;
     //
