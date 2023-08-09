@@ -78,7 +78,6 @@ class GameController : NSObject {
     @objc @IBOutlet var hiScorePanelNameTextField:NSTextField?
 
     var abortGame = false
-    let animationTimerLock = NSLock()
     let SPEED_LIMIT	= 5000.0
     var chx1 = 0
     var chy1 = 0
@@ -524,7 +523,6 @@ class GameController : NSObject {
     }
 
     func startAnimation(_ andThen:@escaping () -> Void) {
-        animationTimerLock.lock()
         if nil == timer {
             timer = Timer(timeInterval: TIMER_INTERVAL, repeats: true, block: { [weak self] timer in
                 self?.gameView?.animate()
@@ -533,13 +531,10 @@ class GameController : NSObject {
         }
         whatNext = andThen
         gameView?.animating = true
-        animationTimerLock.unlock()
     }
 
     func animationEnded() {
-        animationTimerLock.lock()
         gameView?.animating = false
-        animationTimerLock.unlock()
         whatNext()
         gameView?.needsDisplay = true
     }
