@@ -58,8 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     gameLevel = 0;
         
     game = [[Game alloc] init];
-    animationTimerLock = [[NSLock alloc] init];
-    
+
     gemMoveSize = GEM_GRAPHIC_SIZE;
     gemMoveSpeed = GEM_MOVE_SPEED;
     gemMoveSteps = gemMoveSize / gemMoveSpeed;
@@ -81,7 +80,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
   [jeweltoyStartString release];
   [gameOverString release];
   [game release];
-  [animationTimerLock release];
   [timer release];
   [highScores release];
   [super dealloc];
@@ -604,8 +602,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 - (void)startAnimation:(SEL)andThenSelector;
 {
-    [animationTimerLock lock];
-    //
     if (!timer) {
         timer = [[NSTimer timerWithTimeInterval:TIMER_INTERVAL
                                                   target:gameView
@@ -618,19 +614,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     whatNext = andThenSelector;
     //
     [gameView setAnimating:YES];
-    //
-    [animationTimerLock unlock];
 }
 
 - (void)animationEnded
 {
     //NSLog(@"gameController.animationEnded messaged");
     
-    [animationTimerLock lock];
-    //
     [gameView setAnimating:NO];
-    //
-    [animationTimerLock unlock];
     
     if (whatNext)	[self performSelector:whatNext];
         

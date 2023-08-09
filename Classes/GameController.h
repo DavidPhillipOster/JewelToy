@@ -62,8 +62,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     IBOutlet NSPanel		*hiScorePanel;
     IBOutlet NSTextField	*hiScorePanelScoreTextField, *hiScorePanelNameTextField;
     
-    NSLock		*animationTimerLock;
-    
     NSArray		*highScores;
 
     int			*hintTimeSeconds;
