@@ -103,8 +103,8 @@ class GameView : NSView {
     override var isOpaque:Bool { true }
 
     override func draw(_ dirtyRect: NSRect) {
-        backgroundSprite?.blit(x: 0, y: 0, z: 0)
-        if let game = game {
+        backgroundSprite?.blit(x: 0, y: 0, z: 0, alpha: 1)
+        if let game {
             if !paused {
                 for i in 0..<NUMX {
                     for j in 0..<NUMY {
@@ -116,17 +116,17 @@ class GameView : NSView {
         }
         if gameController.gameState == .awaitingSecondClick {
             let p = gameController.crossHair1Position
-            crosshairSprite.blit(x: p.x, y: p.y, z: -0.5)
+            crosshairSprite.blit(x: p.x, y: p.y, z: -0.5, alpha: 1)
         }
         if showHighScores {
             showScores()    // draws the HighScores in legendSprite
         }
-        if let legendSprite = legendSprite {
+        if let legendSprite {
             if 500 < ticsSinceLastMove {
                 setLegend(image: NSImage(named: "title")!) // show Logo
             }
-            legendSprite.blit(x: 0, y: 0, z: -0.75)
-        } else if let game = game, 500 < ticsSinceLastMove && showHint {
+            legendSprite.blit(x: 0, y: 0, z: -0.75, alpha: 1)
+        } else if let game, 500 < ticsSinceLastMove && showHint {
             movehintSprite.blit(x: game.hintPoint().x, y: game.hintPoint().y, z: -0.4, alpha: (sin((CGFloat(ticsSinceLastMove)-497.0)/4.0)+1.0)/2.0)
         }
     }
@@ -135,7 +135,7 @@ class GameView : NSView {
     func animate(){
         var needsUpdate = game?.scoreBubblesAnimate() ?? false
         if animating {
-            if let game = game {
+            if let game {
                 var c = 0
                 for i in 0..<NUMX {
                     for j in 0..<NUMY {

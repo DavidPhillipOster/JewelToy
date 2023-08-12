@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import AppKit
 
-// TODO: cropRect ignored for now.
+// TODO: cropRect ignored for now. Z ignored for now
 class Sprite {
     var image:NSImage
 
@@ -28,7 +28,7 @@ class Sprite {
         self.image = image
     }
 
-    func blit(x:CGFloat, y:CGFloat, z:CGFloat, alpha:CGFloat = 1.0) {
+    func blit(x:CGFloat, y:CGFloat, z:CGFloat, alpha:CGFloat) {
         image.draw(in: NSMakeRect(x, y, image.size.width, image.size.height),
                    from: NSMakeRect(0, 0, image.size.width, image.size.height),
                    operation: .sourceOver, fraction: max(0, min(alpha, 1)))

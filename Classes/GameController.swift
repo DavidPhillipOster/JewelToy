@@ -138,20 +138,20 @@ class GameController : NSObject {
             if aboutPanel?.isEqual(obj) ?? false {
                 aboutPanel = nil
             } else if prefsPanel?.isEqual(obj) ?? false {
-                if let prefsAlternateGraphicsButton = prefsAlternateGraphicsButton {
+                if let prefsAlternateGraphicsButton {
                     useAlternateGraphics = prefsAlternateGraphicsButton.state == .on
                     UserDefaults.standard.set(useAlternateGraphics, forKey: "useAlternateGraphics")
                     UserDefaults.standard.set(useImportedGraphics && useAlternateGraphics, forKey:"useImportedGraphics")
                 }
-                if let prefsCustomBackgroundCheckbox = prefsCustomBackgroundCheckbox {
+                if let prefsCustomBackgroundCheckbox {
                     useCustomBackgrounds = prefsCustomBackgroundCheckbox.state == .on
                     UserDefaults.standard.set(useCustomBackgrounds, forKey: "useCustomBackgrounds")
                 }
                 UserDefaults.standard.removeObject(forKey: "customBackgroundFolderPath")
-                if let prefsCustomBackgroundFolderTextField = prefsCustomBackgroundFolderTextField {
+                if let prefsCustomBackgroundFolderTextField {
                     UserDefaults.standard.set(prefsCustomBackgroundFolderTextField.stringValue, forKey: "customBackgroundFolderPath")
                 }
-                if let gameView = gameView {
+                if let gameView {
                     gameView.graphicSetUp()
                     gameView.updateBackground()
                     game.setSprites(gameView.spriteArray)
@@ -227,7 +227,7 @@ class GameController : NSObject {
         op.canChooseFiles = false
         op.allowsMultipleSelection = false
         let urlS = prefsCustomBackgroundFolderTextField?.stringValue
-        if let urlS = urlS, !urlS.isEmpty {
+        if let urlS, !urlS.isEmpty {
             op.directoryURL = URL(fileURLWithPath: urlS)
         }
         op.beginSheetModal(for: prefsPanel!) { response in
@@ -313,7 +313,7 @@ class GameController : NSObject {
         } else {
             freePlay = false
         }
-        if let gameView = gameView {
+        if let gameView {
             game.wholeNewGame(sprites: gameView.spriteArray)
             scoreTextField?.stringValue = "\(game.score)"
             bonusTextField?.stringValue = "x\(game.bonusMultiplier)"
@@ -347,9 +347,9 @@ class GameController : NSObject {
     }
 
     @IBAction func receiveHiScoreName(_ sender:Any?) {
-        if let hiScorePanel = hiScorePanel,
-            let hiScorePanelScoreTextField = hiScorePanelScoreTextField,
-            let hiScorePanelNameTextField = hiScorePanelNameTextField {
+        if let hiScorePanel,
+            let hiScorePanelScoreTextField,
+            let hiScorePanelNameTextField {
 
             let score = hiScorePanelScoreTextField.intValue
             let name = hiScorePanelNameTextField.stringValue as NSString
@@ -433,7 +433,7 @@ class GameController : NSObject {
         prefsAlternateGraphicsButton?.state = useAlternateGraphics ? .on : .off
 
         prefsCustomBackgroundCheckbox?.state = useCustomBackgrounds ? .on : .off
-        if let customBackgroundFolderPath = customBackgroundFolderPath {
+        if let customBackgroundFolderPath {
             prefsCustomBackgroundFolderTextField?.stringValue = customBackgroundFolderPath
         }
         prefsSelectFolderButton?.isEnabled = prefsCustomBackgroundCheckbox?.state == .on
@@ -490,7 +490,7 @@ class GameController : NSObject {
         for i in 0..<10 {
             if gameScores[i].intValue < game.score {
                 hiScorePanelScoreTextField?.stringValue = "\(game.score)"
-                if let hiScorePanel = hiScorePanel {
+                if let hiScorePanel {
                     gameWindow?.beginSheet(hiScorePanel, completionHandler: nil)
                 }
             }
@@ -542,8 +542,8 @@ class GameController : NSObject {
     func waitForNewGame() {
         gameState = .awaitingGame
         checkHiScores()
-        if let gameView = gameView,
-            let titleImage = titleImage {
+        if let gameView,
+            let titleImage {
             game.wholeNewGame(sprites: gameView.spriteArray)
             gameView.setLegend(image: titleImage)
             easyGameButton?.isEnabled = true
@@ -560,7 +560,7 @@ class GameController : NSObject {
     }
 
     func newBoard2() {
-        if let gameView = gameView {
+        if let gameView {
             for i in 0..<NUMX {
                 for j in 0..<NUMY {
                     let gem = game.gemAt(i, j)

@@ -197,11 +197,8 @@ class Gem {
     }
 
     func drawSprite(){
-        if .fading == state {
-            sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Gem.Z, alpha: CGFloat((Double(animationCounter) / FADE_STEPS)))
-        } else {
-            sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Gem.Z)
-        }
+        sprite?.blit(x: positionOnScreen.x, y: positionOnScreen.y, z: Gem.Z,
+                     alpha: .fading == state ? CGFloat((Double(animationCounter) / FADE_STEPS)) : 1)
     }
 }
 
