@@ -581,10 +581,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     if (!muted)		[[NSSound soundNamed:@"yes"] play];
 
     if (!freePlay) {		// FREEPLAY MW
-        [game increaseBonusMultiplier];
+        [self increaseBonusMultiplier];
         [timerView decrementMeter:0.5];
     } else {
-        [game increaseBonusMultiplier];
+        [self increaseBonusMultiplier];
         [timerView decrementMeter:1];
     }
 
@@ -598,6 +598,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 whenRunOver:@selector(bonusAwarded)];
                 
     if (freePlay)	[timerView setDecrement:0];//	FREEPLAY
+}
+
+- (void)increaseBonusMultiplier {
+    [game increaseBonusMultiplier];
+    [bonusTextField setStringValue:[NSString stringWithFormat:@"x%d",[game bonusMultiplier]]];
 }
 
 - (void)startAnimation:(SEL)andThenSelector;
@@ -783,8 +788,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     anyThrees = ([game testForThreeAt:chx1:chy1])|([game testForThreeAt:chx2:chy2]);
     [scoreTextField setStringValue:[NSString stringWithFormat:@"%d",[game score]]];
     [scoreTextField setNeedsDisplay:YES];
-    [bonusTextField setStringValue:[NSString stringWithFormat:@"x%d",[game bonusMultiplier]]];
-    [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
     if (anyThrees)
         [self startAnimation:@selector(removeThreesAndReplaceGems)];	// fade gems
@@ -811,8 +814,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     anyThrees = [game checkBoardForThrees];
     [scoreTextField setStringValue:[NSString stringWithFormat:@"%d",[game score]]];
     [scoreTextField setNeedsDisplay:YES];
-    [bonusTextField setStringValue:[NSString stringWithFormat:@"x%d",[game bonusMultiplier]]];
-    [bonusTextField setNeedsDisplay:YES];
     if ([game score] > oldScore) [timerView incrementMeter:[game collectGemsFaded]/GEMS_FOR_BONUS];
     if (anyThrees)
         [self startAnimation:@selector(removeThreesAndReplaceGems)];	// fade gems
