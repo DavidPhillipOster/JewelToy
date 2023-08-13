@@ -505,10 +505,10 @@ class GameController : NSObject {
             NSSound(named: "yes")?.play()
         }
         if !freePlay {
-            game.increaseBonusMultiplier()
+            increaseBonusMultiplier()
             timerView?.decrementMeter(0.5)
         } else {
-            game.increaseBonusMultiplier()
+            increaseBonusMultiplier()
             timerView?.decrementMeter(1)
         }
         if gameSpeed < SPEED_LIMIT {
@@ -520,6 +520,11 @@ class GameController : NSObject {
         if freePlay {
             timerView?.decrement = 0
         }
+    }
+
+    func increaseBonusMultiplier() {
+        game.increaseBonusMultiplier()
+        bonusTextField?.stringValue = "x\(game.bonusMultiplier)"
     }
 
     func startAnimation(_ andThen:@escaping () -> Void) {
@@ -689,8 +694,6 @@ class GameController : NSObject {
         }
         scoreTextField?.stringValue = "\(game.score)"
         scoreTextField?.needsDisplay = true
-        bonusTextField?.stringValue = "x\(game.bonusMultiplier)"
-        bonusTextField?.needsDisplay = true
         if oldScore < game.score {
             timerView?.incrementMeter(game.collectGemsFaded()/GEMS_FOR_BONUS)
         }
@@ -713,8 +716,6 @@ class GameController : NSObject {
         let anyThrees = game.checkBoardForThrees()
         scoreTextField?.stringValue = "\(game.score)"
         scoreTextField?.needsDisplay = true
-        bonusTextField?.stringValue = "x\(game.bonusMultiplier)"
-        bonusTextField?.needsDisplay = true
         if oldScore < game.score {
             timerView?.incrementMeter(game.collectGemsFaded()/GEMS_FOR_BONUS)
         }
